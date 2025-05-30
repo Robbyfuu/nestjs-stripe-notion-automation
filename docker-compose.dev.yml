@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  # Aplicación NestJS en modo desarrollo
+  nestjs-stripe-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: build
+    container_name: nestjs-stripe-dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+      - "9229:9229" # Puerto para debugging
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+    env_file:
+      - .env
+    volumes:
+      # Montar código fuente para hot reload
+      - .:/app
+      - /app/node_modules
+      - ./logs:/app/logs
+    depends_on:
+      - redis-dev
+    networks:
+      - nestjs-dev-network
+    command: pnpm run start:debug
+    stdin_open: true
+    tty: true
+
+  # Redis para desarrollo
+  redis-dev:
+    image: redis:7-alpine
+    container_name: nestjs-stripe-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6380:6379" # Puerto diferente para no conflictar
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - nestjs-dev-network
+
+volumes:
+  redis_dev_data:
+    driver: local
+
+networks:
+  nestjs-dev-network:
+    driver: bridge 

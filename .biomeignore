@@ -1,0 +1,43 @@
+# Dependencias
+node_modules/
+pnpm-lock.yaml
+
+# Build outputs
+dist/
+build/
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Cache
+.cache/
+.parcel-cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Generated files
+*.d.ts
+*.js.map
+
+# Test artifacts
+coverage/
+.nyc_output/
+
+# Environment
+.env
+.env.local
+.env.production
+.env.test 
