@@ -195,6 +195,12 @@ flyctl ssh console --app tu-app
 - ✅ Despliegue desde Git
 - ✅ Rollback automático en errores
 
+## 📚 Documentación
+
+- 📖 **[Guía de Desarrollo](DEVELOPMENT.md)** - Workflow con branches y convenciones
+- 🏗️ **[Arquitectura del Sistema](docs/ARCHITECTURE.md)** - Diagramas y documentación técnica
+- 🔧 **Comandos principales** - Ver tabla abajo
+
 ---
 
 **Desarrollado con NestJS + Stripe + Notion + 1Password + Docker + Fly.io**
