@@ -1,10 +1,10 @@
-# NestJS + Stripe + Notion Integration
+# NestJS + Stripe + Notion Automation
 
-Integración automática de pagos de Stripe con bases de datos de Notion.
+Integración automática de pagos de Stripe con bases de datos de Notion para gestión de clientes y pagos.
 
 ## Descripción
 
-Este proyecto automatiza el registro de pagos de Stripe en bases de datos de Notion, creando y actualizando clientes automáticamente.
+Este proyecto automatiza el registro de pagos de Stripe en bases de datos de Notion, creando y actualizando clientes automáticamente con Alpine Linux 3.21.
 
 ## Herramientas de Calidad de Código
 

@@ -1,7 +1,7 @@
 {
-  "name": "nestjs-stripe",
+  "name": "nestjs-stripe-notion-automation",
   "version": "0.0.1",
-  "description": "NestJS + Stripe + Notion integration",
+  "description": "NestJS + Stripe + Notion integration for automated payment processing",
   "author": "",
   "private": true,
   "license": "UNLICENSED",
