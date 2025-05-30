@@ -28,6 +28,7 @@
     "test:1password": "./scripts/load-env-1password.sh pnpm run test",
     "test:e2e:1password": "./scripts/load-env-1password.sh pnpm run test:e2e",
     "setup:1password": "./scripts/setup-1password.sh",
+    "test:1password:config": "./scripts/test-1password.sh",
     "docker:build": "docker build -t nestjs-stripe .",
     "docker:build:dev": "docker build -t nestjs-stripe:dev --target build .",
     "docker:run": "docker run -p 3000:3000 --env-file .env nestjs-stripe",
