@@ -25,7 +25,7 @@
       "recommended": true,
       "style": {
         "noNonNullAssertion": "off",
-        "useImportType": "error"
+        "useImportType": "off"
       },
       "complexity": {
         "noExcessiveCognitiveComplexity": "warn",

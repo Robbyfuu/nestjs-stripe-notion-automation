@@ -1,195 +1,200 @@
-# NestJS + Stripe + Notion Automation
+# NestJS Stripe Notion Automation
 
-Integración automática de pagos de Stripe con bases de datos de Notion para gestión de clientes y pagos.
+Sistema de automatización que conecta pagos de Stripe con bases de datos de Notion.
 
-## Descripción
+## ⚡ Inicio Rápido
 
-Este proyecto automatiza el registro de pagos de Stripe en bases de datos de Notion, creando y actualizando clientes automáticamente con Alpine Linux 3.21.
-
-## Herramientas de Calidad de Código
-
-Este proyecto utiliza [Biome](https://biomejs.dev/) para linting y formateo:
-
+### 1. Configuración Inicial
 ```bash
-# Verificar formato, imports y linting
-pnpm run check
-
-# Aplicar correcciones automáticas
-pnpm run check:fix
-
-# Solo formatear código
-pnpm run format
-
-# Solo linting
-pnpm run lint
-```
-
-## Configuración del Proyecto
-
-```bash
+# Instalar dependencias
 pnpm install
+
+# Configurar credenciales de TEST en 1Password
+pnpm run setup
+
+# Configurar credenciales de PRODUCCIÓN en 1Password
+pnpm run setup:prod
 ```
 
-## Variables de Entorno
-
-Crea un archivo `.env` con:
-
+### 2. Desarrollo
 ```bash
-PORT=3000
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-NOTION_SECRET=secret_...
-NOTION_PAYMENTS_DATABASE_ID=...
-NOTION_CLIENTS_DATABASE_ID=...
+# Desarrollo completo (Docker + Stripe webhooks)
+pnpm run dev
+
+# Solo aplicación en Docker
+pnpm run docker:dev
 ```
 
-## Obtener Tokens y Claves
-
-### 🏦 Stripe Configuration
-
-#### 1. Obtener Stripe Secret Key
-1. Ve a [Stripe Dashboard](https://dashboard.stripe.com/)
-2. Navega a **Developers** → **API keys**
-3. Copia tu **Secret key** (empieza con `sk_test_` para pruebas o `sk_live_` para producción)
-4. Úsala como `STRIPE_SECRET_KEY` en tu `.env`
-
-#### 2. Configurar Webhook de Stripe
-1. En Stripe Dashboard, ve a **Developers** → **Webhooks**
-2. Haz clic en **Add endpoint**
-3. URL del endpoint: `https://tu-dominio.com/webhook/stripe`
-4. Selecciona eventos: `payment_intent.succeeded`
-5. Copia el **Signing secret** (empieza con `whsec_`)
-6. Úsalo como `STRIPE_WEBHOOK_SECRET` en tu `.env`
-
-### 📝 Notion Configuration
-
-#### 1. Crear Integración de Notion
-1. Ve a [Notion Developers](https://www.notion.so/my-integrations)
-2. Haz clic en **New integration**
-3. Completa los detalles:
-   - **Name**: NestJS Stripe Integration
-   - **Logo**: Opcional
-   - **Associated workspace**: Selecciona tu workspace
-4. Copia el **Internal Integration Secret** (empieza con `secret_`)
-5. Úsalo como `NOTION_SECRET` en tu `.env`
-
-#### 2. Crear y Configurar Bases de Datos
-
-##### Base de Datos de Clientes
-1. Crea una nueva página en Notion
-2. Agrega una base de datos con estas propiedades:
-   - **Name** (Title)
-   - **Email** (Email)
-   - **Stripe Customer ID** (Rich Text)
-   - **Created At** (Date)
-3. Comparte la página con tu integración:
-   - Haz clic en **Share** → **Add people**
-   - Busca tu integración y dale acceso
-4. Copia el ID de la base de datos de la URL: `notion.so/workspace/DATABASE_ID?v=...`
-5. Úsalo como `NOTION_CLIENTS_DATABASE_ID`
-
-##### Base de Datos de Pagos
-1. Crea otra página/base de datos con estas propiedades:
-   - **Payment ID** (Title)
-   - **Customer** (Relation to Clients DB)
-   - **Amount** (Number)
-   - **Currency** (Select)
-   - **Status** (Select: succeeded, failed, pending)
-   - **Payment Date** (Date)
-   - **Stripe Payment Intent ID** (Rich Text)
-2. Comparte con tu integración igual que antes
-3. Copia el ID y úsalo como `NOTION_PAYMENTS_DATABASE_ID`
-
-#### 3. IDs de Base de Datos
-Los IDs están en la URL de la base de datos:
-```
-https://notion.so/workspace/DATABASE_ID?v=VIEW_ID
-```
-Solo necesitas la parte `DATABASE_ID` (32 caracteres alfanuméricos).
-
-### 🔗 Ejemplo de Archivo .env Completo
+### 3. Producción
 ```bash
-PORT=3000
-STRIPE_SECRET_KEY=sk_test_51AbCdEf1234567890
-STRIPE_WEBHOOK_SECRET=whsec_1234567890abcdef
-NOTION_SECRET=secret_AbCdEf1234567890
-NOTION_PAYMENTS_DATABASE_ID=12345678901234567890123456789012
-NOTION_CLIENTS_DATABASE_ID=09876543210987654321098765432109
+# Configuración completa para producción local
+pnpm run prod
+
+# Deployment en Fly.io (recomendado)
+pnpm run deploy
+
+# Solo Docker en producción (manual)
+pnpm run docker:prod
 ```
 
-## 🔐 Gestión de Variables con 1Password
+## 🔧 Comandos Principales
 
-Para mayor seguridad, puedes gestionar tus variables de entorno usando 1Password:
+| Comando | Descripción |
+|---------|-------------|
+| `pnpm run setup` | Configurar credenciales de **TEST** en 1Password |
+| `pnpm run setup:prod` | Configurar credenciales de **PRODUCCIÓN** en 1Password |
+| `pnpm run dev` | Desarrollo completo con webhooks |
+| `pnpm run prod` | **Producción local con verificaciones** |
+| `pnpm run deploy` | **🚀 Deployment en Fly.io** |
+| `pnpm run fly:logs` | Ver logs de Fly.io |
+| `pnpm run fly:status` | Estado de la app en Fly.io |
+| `pnpm run docker:dev` | Solo aplicación en Docker (desarrollo) |
+| `pnpm run docker:prod` | Solo aplicación en Docker (producción) |
+| `pnpm run docker:down` | Detener contenedores |
+| `pnpm run docker:logs` | Ver logs de Docker |
 
-### Configuración inicial
+## 🏗️ Arquitectura
+
+```
+Stripe Webhook → NestJS → Notion
+```
+
+1. **Webhook de Stripe** recibe evento de pago
+2. **NestJS** procesa y valida el evento  
+3. **Notion** guarda cliente y pago automáticamente
+
+## 📋 Requisitos
+
+- **1Password CLI** para gestión de secrets
+- **Stripe CLI** para webhooks de desarrollo
+- **Docker** para contenedores
+- **Credenciales:**
+  - Stripe API Key + Webhook Secret
+  - Notion Integration Token + Database IDs
+
+## 🔑 Variables de Entorno
+
+Gestionadas automáticamente por 1Password **separadas por ambiente**:
+
+### 🧪 TEST (Desarrollo)
+- `STRIPE_SECRET_KEY` → `NestJS Stripe API`
+- `STRIPE_WEBHOOK_SECRET` → `NestJS Stripe Webhook`
+
+### 🏭 PRODUCCIÓN
+- `STRIPE_SECRET_KEY` → `NestJS Stripe API PROD` 
+- `STRIPE_WEBHOOK_SECRET` → `NestJS Stripe Webhook PROD`
+
+### 📚 COMPARTIDO (Ambos ambientes)
+- `NOTION_SECRET` → `NestJS Notion Integration`
+- `NOTION_PAYMENTS_DATABASE_ID` → `NestJS Notion Databases`
+- `NOTION_CLIENTS_DATABASE_ID` → `NestJS Notion Databases`
+
+## 📝 Flujo de Trabajo
+
+1. Cliente realiza pago en Stripe
+2. Stripe envía webhook a `/webhook/stripe`
+3. Sistema verifica firma del webhook
+4. Extrae datos del cliente y pago
+5. Crea/actualiza registro de cliente en Notion
+6. Registra pago en base de datos de Notion
+7. Actualiza total pagado del cliente
+
+## 🏭 Configuración para Producción
+
+### 1. Webhook de Stripe
+1. Ve a [Stripe Dashboard → Webhooks](https://dashboard.stripe.com/webhooks)
+2. Crea endpoint: `https://tu-dominio.com/webhook/stripe`
+3. Selecciona evento: `payment_intent.succeeded`
+4. Copia el signing secret
+5. Actualiza en 1Password:
+   ```bash
+   op item edit "NestJS Stripe Webhook" "Webhook Secret[password]"="whsec_nuevo_secret"
+   ```
+
+### 2. Variables de Entorno
+- Usa claves **reales** de Stripe (no test keys)
+- Configura webhook secret **real** (no de desarrollo local)
+- Verifica acceso a bases de datos de Notion
+
+### 3. Despliegue
 ```bash
-# 1. Instalar 1Password CLI (si no lo tienes)
-brew install --cask 1password/tap/1password-cli
+# Configuración y verificación automática
+pnpm run prod
 
-# 2. Configurar entradas en 1Password
-pnpm run setup:1password
+# Verificar salud
+curl https://tu-dominio.com/health
 
-# 3. Ejecutar la aplicación con variables desde 1Password
-pnpm run start:dev:1password
+# Ver logs
+docker-compose logs -f nestjs-stripe
 ```
 
-### Scripts disponibles con 1Password
+### 4. Seguridad
+- ✅ Headers de seguridad configurados
+- ✅ Usuario no-root en Docker
+- ✅ Verificación de firmas de webhook
+- ✅ Logs optimizados para producción
+- ✅ Health checks automáticos
+
+## ☁️ Deployment en Fly.io (Recomendado)
+
+### 1. Instalación y Setup
 ```bash
-# Desarrollo
-pnpm run start:1password        # Modo desarrollo por defecto
-pnpm run start:dev:1password    # Modo desarrollo explícito
-pnpm run start:prod:1password   # Modo producción
+# Instalar Fly CLI
+brew install flyctl
+# o
+curl -L https://fly.io/install.sh | sh
 
-# Testing
-pnpm run test:1password         # Tests unitarios
-pnpm run test:e2e:1password     # Tests e2e
-
-# Configuración
-pnpm run setup:1password        # Configurar entradas en 1Password
+# Crear cuenta y login
+flyctl auth signup
+flyctl auth login
 ```
 
-### Ventajas de usar 1Password
-- ✅ **Seguridad**: Credenciales encriptadas y centralizadas
-- ✅ **Compartir**: Fácil colaboración en equipo
-- ✅ **Sincronización**: Acceso desde cualquier dispositivo
-- ✅ **Auditoría**: Historial de cambios y accesos
-- ✅ **Sin archivos**: No necesitas archivo `.env` local
-
-## Ejecutar la Aplicación
-
+### 2. Deployment
 ```bash
-# desarrollo
-pnpm run start
+# Deployment completo automático
+pnpm run deploy
 
-# modo watch
-pnpm run start:dev
-
-# producción
-pnpm run start:prod
+# Con nombre personalizado
+./scripts/deploy-flyio.sh mi-app-custom
 ```
 
-## Pruebas
+### 3. Configuración de Webhook
+1. Después del deployment, ve a [Stripe Dashboard → Webhooks](https://dashboard.stripe.com/webhooks)
+2. Agrega endpoint: `https://tu-app.fly.dev/webhook/stripe`
+3. Selecciona evento: `payment_intent.succeeded`
+4. Copia el signing secret
+5. Actualiza en 1Password:
+   ```bash
+   op item edit "NestJS Stripe Webhook" "Webhook Secret[password]"="whsec_nuevo_secret"
+   ```
+6. Redespliega:
+   ```bash
+   flyctl deploy --app tu-app
+   ```
 
+### 4. Monitoreo y Gestión
 ```bash
-# pruebas unitarias
-pnpm run test
+# Ver logs en tiempo real
+pnpm run fly:logs
 
-# pruebas e2e
-pnpm run test:e2e
+# Estado de la aplicación
+pnpm run fly:status
 
-# cobertura de pruebas
-pnpm run test:cov
+# Escalar aplicación
+flyctl scale count 1 --app tu-app
+
+# Acceso SSH
+flyctl ssh console --app tu-app
 ```
 
-## Estructura del Proyecto
+### 5. Características de Fly.io
+- ✅ Auto-scaling (se duerme sin tráfico)
+- ✅ Health checks automáticos
+- ✅ SSL/HTTPS automático
+- ✅ CDN global
+- ✅ Despliegue desde Git
+- ✅ Rollback automático en errores
 
-- `src/stripe/` - Integración con Stripe
-- `src/notion/` - Integración con Notion
-- `src/payments/` - Procesamiento de pagos
-- `biome.json` - Configuración de Biome
+---
 
-## Endpoints
-
-- `GET /` - Estado de la aplicación
-- `GET /health` - Health check
-- `POST /webhook/stripe` - Webhook de Stripe 
+**Desarrollado con NestJS + Stripe + Notion + 1Password + Docker + Fly.io**

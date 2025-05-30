@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type Stripe from 'stripe';
 import { NotionService } from '../notion/notion.service';
 import { StripeService } from '../stripe/stripe.service';
-import type Stripe from 'stripe';
 
 @Injectable()
 export class PaymentsService {
@@ -21,14 +21,29 @@ export class PaymentsService {
       // Extraemos la información del latest_charge expandido
       const latestCharge = payment.latest_charge as Stripe.Charge;
       const billingDetails = latestCharge?.billing_details;
-      const customerEmail = billingDetails?.email || payment.receipt_email;
-      const customerName = billingDetails?.name || 'Cliente sin nombre';
-      const customerPhone = billingDetails?.phone;
+      
+      let customerEmail = billingDetails?.email || payment.receipt_email;
+      let customerName = billingDetails?.name || 'Cliente sin nombre';
+      let customerPhone = billingDetails?.phone;
+      
+      // Si no hay email en billing_details pero hay customer ID, obtener del customer
+      if (!customerEmail && payment.customer) {
+        try {
+          const customer = await this.stripeService.getCustomer(payment.customer as string);
+          customerEmail = customer.email;
+          customerName = customer.name || customerName;
+          customerPhone = customer.phone || customerPhone;
+        } catch (error) {
+          console.log('Error obteniendo datos del customer:', error.message);
+        }
+      }
 
       if (!customerEmail) {
         console.log('Pago sin email del cliente, no se puede registrar en Notion');
         return;
       }
+
+      console.log(`✅ Procesando pago: ${customerEmail} - $${(payment.amount / 100).toFixed(2)} ${payment.currency.toUpperCase()}`);
 
       // Creamos o actualizamos el cliente en Notion
       const clientResponse = await this.notionService.createOrUpdateClient({
@@ -40,10 +55,7 @@ export class PaymentsService {
 
       // Obtenemos la descripción del pago desde el charge o payment intent
       const paymentDescription =
-        latestCharge?.calculated_statement_descriptor ||
-        latestCharge?.description ||
-        payment.description ||
-        'ASESORIA ONLINE';
+        latestCharge?.calculated_statement_descriptor || latestCharge?.description || payment.description || 'ASESORIA ONLINE';
 
       // Preparamos los datos del pago para Notion
       const paymentData = {
@@ -64,8 +76,7 @@ export class PaymentsService {
       // Actualizamos el total pagado del cliente
       await this.notionService.updateClientTotalPaid(clientResponse.id);
 
-      console.log(`Pago registrado en Notion: ${paymentResult.id}`);
-      console.log(`Cliente actualizado: ${clientResponse.id}`);
+      console.log(`✅ Pago registrado en Notion: ${paymentResult.id}`);
 
       return {
         paymentId: paymentResult.id,

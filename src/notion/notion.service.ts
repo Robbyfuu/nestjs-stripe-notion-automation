@@ -119,7 +119,7 @@ export class NotionService {
     date: Date;
   }) {
     try {
-      const { paymentName, amount, currency, transactionId, paymentMethod, status, customerEmail, clientPageId, date } = paymentData;
+      const { paymentName, amount, currency, transactionId, paymentMethod, status: _status, customerEmail, clientPageId, date } = paymentData;
 
       const properties: any = {
         'Nombre del Pago': {
@@ -147,11 +147,12 @@ export class NotionService {
         'Correo electrónico': {
           email: customerEmail,
         },
-        Estado: {
-          select: {
-            name: status === 'succeeded' ? 'Completado' : status,
-          },
-        },
+        // TODO: Verificar el nombre exacto del campo de estado en la base de datos de Notion
+        // status: {
+        //   select: {
+        //     name: status === 'succeeded' ? 'Completado' : status,
+        //   },
+        // },
         'ID de Transacción': {
           rich_text: [
             {

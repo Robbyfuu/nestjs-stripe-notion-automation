@@ -22,11 +22,11 @@ fi
 
 # Cargar variables de entorno desde 1Password
 echo "📥 Obteniendo credenciales de Stripe..."
-export STRIPE_SECRET_KEY=$(op item get "NestJS Stripe API" --field "Secret Key" 2>/dev/null || echo "")
-export STRIPE_WEBHOOK_SECRET=$(op item get "NestJS Stripe Webhook" --field "Webhook Secret" 2>/dev/null || echo "")
+export STRIPE_SECRET_KEY=$(op item get "NestJS Stripe API" --field "Secret Key" --reveal 2>/dev/null || echo "")
+export STRIPE_WEBHOOK_SECRET=$(op item get "NestJS Stripe Webhook" --field "Webhook Secret" --reveal 2>/dev/null || echo "")
 
 echo "📥 Obteniendo credenciales de Notion..."
-export NOTION_SECRET=$(op item get "NestJS Notion Integration" --field "Integration Secret" 2>/dev/null || echo "")
+export NOTION_SECRET=$(op item get "NestJS Notion Integration" --field "Integration Secret" --reveal 2>/dev/null || echo "")
 export NOTION_PAYMENTS_DATABASE_ID=$(op item get "NestJS Notion Databases" --field "Payments Database ID" 2>/dev/null || echo "")
 export NOTION_CLIENTS_DATABASE_ID=$(op item get "NestJS Notion Databases" --field "Clients Database ID" 2>/dev/null || echo "")
 

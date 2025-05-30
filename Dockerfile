@@ -29,7 +29,7 @@ RUN pnpm run build
 FROM node:20-alpine3.21 AS production
 
 # Actualizar paquetes del sistema para resolver vulnerabilidades
-RUN apk update && apk upgrade && apk add --no-cache dumb-init
+RUN apk update && apk upgrade && apk add --no-cache dumb-init curl
 
 # Instalar pnpm
 RUN npm install -g pnpm
@@ -60,9 +60,9 @@ EXPOSE 3000
 ENV NODE_ENV=production
 ENV PORT=3000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node scripts/health-check.js || exit 1
+# Health check optimizado para Fly.io
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:3000/health || exit 1
 
 # Usar dumb-init para manejo correcto de señales
 ENTRYPOINT ["dumb-init", "--"]

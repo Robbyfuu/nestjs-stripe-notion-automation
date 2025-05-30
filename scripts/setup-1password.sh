@@ -117,20 +117,69 @@ create_item() {
     
     echo "🔐 Creando entrada: $title"
     
-    # Construir comando op item create
+    # Verificar que estemos autenticados
+    if ! op account list &> /dev/null; then
+        echo "❌ Error: No estás autenticado en 1Password"
+        echo "🔑 Ejecuta: eval \$(op signin)"
+        return 1
+    fi
+    
+    # Construir comando op item create con el formato correcto
     local cmd="op item create --category=login --title='$title'"
     
     if [ -n "$username" ]; then
         cmd="$cmd --username='$username'"
     fi
     
-    # Agregar campos personalizados
+    # Agregar campos personalizados usando el formato de asignación
     for field in "${fields[@]}"; do
-        cmd="$cmd --field='$field'"
+        # Convertir formato field[type]=value a "field[type]"="value"
+        if [[ $field =~ ^([^=]+)=(.+)$ ]]; then
+            local field_def="${BASH_REMATCH[1]}"
+            local field_value="${BASH_REMATCH[2]}"
+            cmd="$cmd '${field_def}'='${field_value}'"
+        fi
     done
     
-    eval "$cmd" > /dev/null 2>&1
-    echo "✅ Entrada '$title' creada exitosamente"
+    echo "🐛 Debug: Ejecutando comando: $cmd"
+    
+    # Ejecutar comando y capturar errores
+    local output
+    local exit_code
+    output=$(eval "$cmd" 2>&1)
+    exit_code=$?
+    
+    if [ $exit_code -eq 0 ]; then
+        echo "✅ Entrada '$title' creada exitosamente"
+        return 0
+    else
+        echo "❌ Error creando entrada '$title'"
+        echo "🐛 Código de salida: $exit_code"
+        echo "🐛 Salida del comando:"
+        echo "$output"
+        
+        # Verificar errores comunes
+        if echo "$output" | grep -i "already exists" > /dev/null; then
+            echo -n "💡 La entrada ya existe. ¿Quieres actualizarla? (y/N): "
+            read confirm
+            if [[ $confirm =~ ^[Yy]$ ]]; then
+                # Intentar actualizar en lugar de crear
+                local update_cmd=$(echo "$cmd" | sed 's/create/edit/')
+                echo "🔄 Intentando actualizar entrada existente..."
+                output=$(eval "$update_cmd" 2>&1)
+                exit_code=$?
+                if [ $exit_code -eq 0 ]; then
+                    echo "✅ Entrada '$title' actualizada exitosamente"
+                    return 0
+                else
+                    echo "❌ Error actualizando entrada: $output"
+                    return 1
+                fi
+            fi
+        fi
+        
+        return 1
+    fi
 }
 
 echo "1️⃣ Configurando Stripe API Keys"
@@ -138,7 +187,11 @@ echo "================================"
 read_secret "Stripe Secret Key (sk_test_... o sk_live_...)" STRIPE_SECRET_KEY "sk_"
 
 if [ -n "$STRIPE_SECRET_KEY" ]; then
-    create_item "NestJS Stripe API" "" "Secret Key[password]=$STRIPE_SECRET_KEY"
+    if ! create_item "NestJS Stripe API" "" "Secret Key[password]=$STRIPE_SECRET_KEY"; then
+        echo "⚠️  Continuando con la siguiente configuración..."
+    fi
+else
+    echo "⏭️  Saltando configuración de Stripe API Key"
 fi
 
 echo ""
@@ -147,7 +200,11 @@ echo "==============================="
 read_secret "Stripe Webhook Secret (whsec_...)" STRIPE_WEBHOOK_SECRET "whsec_"
 
 if [ -n "$STRIPE_WEBHOOK_SECRET" ]; then
-    create_item "NestJS Stripe Webhook" "" "Webhook Secret[password]=$STRIPE_WEBHOOK_SECRET"
+    if ! create_item "NestJS Stripe Webhook" "" "Webhook Secret[password]=$STRIPE_WEBHOOK_SECRET"; then
+        echo "⚠️  Continuando con la siguiente configuración..."
+    fi
+else
+    echo "⏭️  Saltando configuración de Stripe Webhook Secret"
 fi
 
 echo ""
@@ -156,7 +213,11 @@ echo "==================================="
 read_secret "Notion Integration Secret (secret_...)" NOTION_SECRET "secret_"
 
 if [ -n "$NOTION_SECRET" ]; then
-    create_item "NestJS Notion Integration" "" "Integration Secret[password]=$NOTION_SECRET"
+    if ! create_item "NestJS Notion Integration" "" "Integration Secret[password]=$NOTION_SECRET"; then
+        echo "⚠️  Continuando con la siguiente configuración..."
+    fi
+else
+    echo "⏭️  Saltando configuración de Notion Integration Secret"
 fi
 
 echo ""
@@ -223,15 +284,19 @@ read_database_id() {
     done
 }
 
-read_database_id "Notion Payments Database ID" NOTION_PAYMENTS_DB_ID
-read_database_id "Notion Clients Database ID" NOTION_CLIENTS_DB_ID
+read_database_id "Notion Payments Database ID" NOTION_PAYMENTS_DATABASE_ID
+read_database_id "Notion Clients Database ID" NOTION_CLIENTS_DATABASE_ID
 
-if [ -n "$NOTION_PAYMENTS_DB_ID" ] || [ -n "$NOTION_CLIENTS_DB_ID" ]; then
+if [ -n "$NOTION_PAYMENTS_DATABASE_ID" ] || [ -n "$NOTION_CLIENTS_DATABASE_ID" ]; then
     fields=()
-    [ -n "$NOTION_PAYMENTS_DB_ID" ] && fields+=("Payments Database ID[text]=$NOTION_PAYMENTS_DB_ID")
-    [ -n "$NOTION_CLIENTS_DB_ID" ] && fields+=("Clients Database ID[text]=$NOTION_CLIENTS_DB_ID")
+    [ -n "$NOTION_PAYMENTS_DATABASE_ID" ] && fields+=("Payments Database ID[text]=$NOTION_PAYMENTS_DATABASE_ID")
+    [ -n "$NOTION_CLIENTS_DATABASE_ID" ] && fields+=("Clients Database ID[text]=$NOTION_CLIENTS_DATABASE_ID")
     
-    create_item "NestJS Notion Databases" "" "${fields[@]}"
+    if ! create_item "NestJS Notion Databases" "" "${fields[@]}"; then
+        echo "⚠️  Error creando entrada de bases de datos de Notion"
+    fi
+else
+    echo "⏭️  Saltando configuración de bases de datos de Notion"
 fi
 
 echo ""
@@ -239,9 +304,17 @@ echo "🎉 ¡Configuración completada!"
 echo "============================================"
 echo ""
 echo "📋 Comandos disponibles:"
-echo "   ./scripts/load-env-1password.sh                 # Ejecutar con env desde 1Password"
-echo "   ./scripts/load-env-1password.sh pnpm run build  # Build con env desde 1Password"
-echo "   ./scripts/load-env-1password.sh pnpm test       # Tests con env desde 1Password"
+echo "   pnpm run docker:dev                     # Desarrollo local"
+echo "   pnpm run docker:prod                    # Producción"
+echo "   pnpm run docker:down                    # Detener contenedores"
+echo "   pnpm run docker:logs                    # Ver logs"
+echo ""
+echo "🔗 Para PRODUCCIÓN, configura webhook en Stripe Dashboard:"
+echo "   1. Ve a https://dashboard.stripe.com/webhooks"
+echo "   2. Agrega endpoint: https://tu-dominio.com/webhook/stripe"
+echo "   3. Selecciona eventos: payment_intent.succeeded"
+echo "   4. Copia el signing secret y actualízalo en 1Password:"
+echo "      op item edit 'NestJS Stripe Webhook' 'Webhook Secret[password]'='whsec_nuevo_secret'"
 echo ""
 echo "💡 También puedes agregar este alias a tu .zshrc:"
-echo "   alias nest-dev='./scripts/load-env-1password.sh'" 
+echo "   alias nest-prod='./scripts/docker-1password.sh prod'" 

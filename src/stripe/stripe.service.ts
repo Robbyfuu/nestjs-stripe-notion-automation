@@ -1,55 +1,83 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
+import type { Stripe as StripeTypes } from 'stripe';
 
 @Injectable()
 export class StripeService {
   private stripe: Stripe;
   private webhookSecret: string;
 
-  constructor(@Inject(ConfigService) private configService: ConfigService) {
-    this.stripe = new Stripe(this.configService.get<string>('STRIPE_SECRET_KEY')!, {
+  constructor(private configService: ConfigService) {
+    const secretKey = this.configService.get<string>('STRIPE_SECRET_KEY');
+    this.webhookSecret = this.configService.get<string>('STRIPE_WEBHOOK_SECRET');
+
+    if (!secretKey) {
+      throw new Error('STRIPE_SECRET_KEY no está configurada en las variables de entorno');
+    }
+
+    if (!this.webhookSecret) {
+      throw new Error('STRIPE_WEBHOOK_SECRET no está configurada en las variables de entorno');
+    }
+
+    this.stripe = new Stripe(secretKey, {
       apiVersion: '2025-05-28.basil',
     });
-    this.webhookSecret = this.configService.get<string>('STRIPE_WEBHOOK_SECRET')!;
   }
 
   /**
    * Verifica la firma del webhook de Stripe
    */
-  verifyWebhookSignature(payload: Buffer, signature: string): Stripe.Event {
+  verifyWebhookSignature(payload: Buffer, signature: string): StripeTypes.Event {
     return this.stripe.webhooks.constructEvent(payload, signature, this.webhookSecret);
+  }
+
+  /**
+   * Obtiene los detalles completos de un PaymentIntent
+   */
+  async getPaymentIntent(paymentIntentId: string): Promise<StripeTypes.PaymentIntent> {
+    return await this.stripe.paymentIntents.retrieve(paymentIntentId, {
+      expand: ['customer'],
+    });
+  }
+
+  /**
+   * Crea un PaymentIntent
+   */
+  async createPaymentIntent(amount: number, currency = 'usd', metadata?: Record<string, string>): Promise<StripeTypes.PaymentIntent> {
+    return await this.stripe.paymentIntents.create({
+      amount,
+      currency,
+      metadata,
+    });
+  }
+
+  /**
+   * Obtiene información del cliente
+   */
+  async getCustomer(customerId: string): Promise<StripeTypes.Customer> {
+    const customer = await this.stripe.customers.retrieve(customerId);
+    if (customer.deleted) {
+      throw new Error('El cliente ha sido eliminado');
+    }
+    return customer as StripeTypes.Customer;
   }
 
   /**
    * Obtiene los detalles completos de un pago
    */
-  async getPaymentDetails(paymentIntentId: string): Promise<Stripe.PaymentIntent> {
+  async getPaymentDetails(paymentIntentId: string): Promise<StripeTypes.PaymentIntent> {
     return await this.stripe.paymentIntents.retrieve(paymentIntentId, {
-      expand: ['latest_charge', 'latest_charge.payment_method'],
+      expand: ['latest_charge'],
     });
-  }
-
-  /**
-   * Crea un Payment Intent
-   */
-  async createPaymentIntent(params: Stripe.PaymentIntentCreateParams): Promise<Stripe.PaymentIntent> {
-    return await this.stripe.paymentIntents.create(params);
-  }
-
-  /**
-   * Obtiene información de un cliente
-   */
-  async getCustomer(customerId: string): Promise<Stripe.Customer> {
-    return await this.stripe.customers.retrieve(customerId) as Stripe.Customer;
   }
 
   /**
    * Lista todos los pagos de un cliente
    */
-  async listCustomerPayments(customerId: string): Promise<Stripe.ApiList<Stripe.PaymentIntent>> {
+  async listCustomerPayments(customerId: string): Promise<StripeTypes.ApiList<StripeTypes.PaymentIntent>> {
     return await this.stripe.paymentIntents.list({
       customer: customerId,
     });
   }
-} 
+}
