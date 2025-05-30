@@ -117,6 +117,44 @@ NOTION_PAYMENTS_DATABASE_ID=12345678901234567890123456789012
 NOTION_CLIENTS_DATABASE_ID=09876543210987654321098765432109
 ```
 
+## 🔐 Gestión de Variables con 1Password
+
+Para mayor seguridad, puedes gestionar tus variables de entorno usando 1Password:
+
+### Configuración inicial
+```bash
+# 1. Instalar 1Password CLI (si no lo tienes)
+brew install --cask 1password/tap/1password-cli
+
+# 2. Configurar entradas en 1Password
+pnpm run setup:1password
+
+# 3. Ejecutar la aplicación con variables desde 1Password
+pnpm run start:dev:1password
+```
+
+### Scripts disponibles con 1Password
+```bash
+# Desarrollo
+pnpm run start:1password        # Modo desarrollo por defecto
+pnpm run start:dev:1password    # Modo desarrollo explícito
+pnpm run start:prod:1password   # Modo producción
+
+# Testing
+pnpm run test:1password         # Tests unitarios
+pnpm run test:e2e:1password     # Tests e2e
+
+# Configuración
+pnpm run setup:1password        # Configurar entradas en 1Password
+```
+
+### Ventajas de usar 1Password
+- ✅ **Seguridad**: Credenciales encriptadas y centralizadas
+- ✅ **Compartir**: Fácil colaboración en equipo
+- ✅ **Sincronización**: Acceso desde cualquier dispositivo
+- ✅ **Auditoría**: Historial de cambios y accesos
+- ✅ **Sin archivos**: No necesitas archivo `.env` local
+
 ## Ejecutar la Aplicación
 
 ```bash
