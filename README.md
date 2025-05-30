@@ -195,6 +195,33 @@ flyctl ssh console --app tu-app
 - ✅ Despliegue desde Git
 - ✅ Rollback automático en errores
 
+## 🔧 Troubleshooting
+
+### Problemas con Webhooks de Stripe
+- **Error 500**: Verifica que el webhook secret sea correcto en 1Password
+- **Firma inválida**: Confirma que la URL del webhook esté configurada correctamente
+- **No recibe eventos**: Revisa que `payment_intent.succeeded` esté seleccionado
+
+### Problemas con 1Password
+- **CLI no encontrado**: Instala con `brew install --cask 1password/tap/1password-cli`
+- **No autenticado**: Ejecuta `eval $(op signin)` 
+- **Credenciales no encontradas**: Verifica nombres exactos de las entradas
+
+### Problemas con Fly.io
+- **Deploy falla**: Verifica que estés autenticado con `flyctl auth login`
+- **App no responde**: Revisa logs con `pnpm run fly:logs`
+- **Health check falla**: Confirma que `/health` devuelva 200
+
+### Problemas con Docker
+- **Error de permisos**: Asegúrate de que Docker esté corriendo
+- **Variables no cargadas**: Verifica que 1Password CLI esté funcionando
+- **Puerto ocupado**: Usa `docker-compose down` para limpiar
+
+## 📚 Documentación
+
+- 📖 **[Guía de Desarrollo](DEVELOPMENT.md)** - Workflow con branches y convenciones
+- 🏗️ **[Documentación Técnica](docs/)** - Arquitectura y diagramas del sistema
+
 ---
 
 **Desarrollado con NestJS + Stripe + Notion + 1Password + Docker + Fly.io**
