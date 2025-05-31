@@ -30,22 +30,7 @@ services:
       retries: 3
       start_period: 40s
 
-  # Redis para caché (opcional)
-  redis:
-    image: redis:7-alpine
-    container_name: nestjs-stripe-redis
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - nestjs-network
-    command: redis-server --appendonly yes
 
-volumes:
-  redis_data:
-    driver: local
 
 networks:
   nestjs-network:

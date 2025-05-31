@@ -1,0 +1,45 @@
+name: Deploy to Fly.io
+
+on:
+  push:
+    branches:
+      - main        # Production environment
+      - develop     # Development environment
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 🛎️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🏗️ Setup Fly.io CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: 🎯 Determine environment
+        id: env
+        run: |
+          if [[ ${{ github.ref }} == 'refs/heads/main' ]]; then
+            echo "environment=production" >> $GITHUB_OUTPUT
+            echo "app_name=nestjs-stripe-notion" >> $GITHUB_OUTPUT
+            echo "fly_config=fly.toml" >> $GITHUB_OUTPUT
+          elif [[ ${{ github.ref }} == 'refs/heads/develop' ]]; then
+            echo "environment=development" >> $GITHUB_OUTPUT
+            echo "app_name=nestjs-stripe-notion-dev" >> $GITHUB_OUTPUT
+            echo "fly_config=fly.dev.toml" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 🚀 Deploy to ${{ steps.env.outputs.environment }}
+        run: |
+          flyctl deploy \
+            --config ${{ steps.env.outputs.fly_config }} \
+            --app ${{ steps.env.outputs.app_name }} \
+            --build-arg NODE_ENV=${{ steps.env.outputs.environment }}
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: ✅ Deployment Status
+        run: |
+          echo "🎉 Successfully deployed to ${{ steps.env.outputs.environment }}"
+          echo "🔗 App URL: https://${{ steps.env.outputs.app_name }}.fly.dev" 

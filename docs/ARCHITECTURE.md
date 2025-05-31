@@ -58,19 +58,6 @@ graph TB
     N -.->|Prod Environment| E
     O -.->|Notion Integration| E
     C -.->|Webhook Config| D
-    
-    %% Estilos
-    classDef client fill:#e1f5fe
-    classDef stripe fill:#f3e5f5
-    classDef app fill:#e8f5e8
-    classDef notion fill:#fff3e0
-    classDef security fill:#ffebee
-    
-    class A client
-    class B,C,D stripe
-    class E,F,G,H,I,J app
-    class K,L notion
-    class M,N,O security
 ```
 
 ## 🔄 Flujo de Datos Detallado
@@ -154,16 +141,6 @@ graph TD
     D --> K
     G --> K
     I --> K
-    
-    classDef module fill:#e3f2fd
-    classDef controller fill:#f1f8e9
-    classDef service fill:#fff8e1
-    classDef config fill:#fce4ec
-    
-    class A,D,G,I,K module
-    class B,E controller
-    class F,H,J service
-    class C,L config
 ```
 
 ## 🗃️ Estructura de Bases de Datos (Notion)
@@ -231,14 +208,6 @@ graph LR
     H --> D
     H --> E
     H --> F
-    
-    classDef dev fill:#e8f5e8
-    classDef prod fill:#fff3e0
-    classDef shared fill:#e1f5fe
-    
-    class A,B,G dev
-    class C,D,H prod
-    class E,F shared
 ```
 
 ## 🚀 Infraestructura de Deployment
@@ -251,47 +220,61 @@ graph TB
         C[1Password CLI]
     end
     
-    subgraph "☁️ Fly.io Production"
-        D[Load Balancer]
-        E[Docker Container]
-        F[Health Checks]
-        G[Auto Scaling]
+    subgraph "🔄 GitHub Repository"
+        D[develop branch]
+        E[main branch]
+        F[GitHub Actions]
     end
     
-    subgraph "🔄 CI/CD"
-        H[GitHub Repository]
-        I[Manual Deploy]
-        J[Fly.io CLI]
+    subgraph "🧪 Staging Environment"
+        G[nestjs-stripe-notion-dev]
+        H[Auto-scaling]
+        I[Health Checks]
+    end
+    
+    subgraph "🏭 Production Environment"
+        J[nestjs-stripe-notion]
+        K[Auto-scaling]
+        L[Health Checks]
     end
     
     subgraph "🌐 External Services"
-        K[Stripe API]
-        L[Notion API]
-        M[1Password Vault]
+        M[Stripe API Test]
+        N[Stripe API Live]
+        O[Notion API]
+        P[1Password Vault]
     end
     
-    A --> H
-    H --> I
-    I --> J
-    J --> D
-    D --> E
+    subgraph "📚 Notion Databases"
+        Q[Clients DEV]
+        R[Payments DEV]
+        S[Clients PROD]
+        T[Payments PROD]
+    end
+    
+    A --> D
+    D --> F
     E --> F
-    E --> G
+    F -->|Auto Deploy| G
+    F -->|Auto Deploy| J
     
-    E --> K
-    E --> L
-    C --> M
-    E --> M
+    G --> H
+    G --> I
+    J --> K
+    J --> L
     
-    classDef local fill:#e8f5e8
-    classDef cloud fill:#e3f2fd
-    classDef cicd fill:#fff3e0
-    classDef external fill:#f3e5f5
+    G --> M
+    G --> Q
+    G --> R
+    J --> N
+    J --> S
+    J --> T
     
-    class A,B,C local
-    class D,E,F,G cloud
-    class H,I,J cicd
-    class K,L,M external
+    G --> O
+    J --> O
+    C --> P
+    G --> P
+    J --> P
 ```
 
 ## 📊 Métricas y Monitoreo
@@ -331,16 +314,6 @@ graph LR
     G --> J
     H --> J
     I --> J
-    
-    classDef app fill:#e8f5e8
-    classDef business fill:#fff3e0
-    classDef infra fill:#e3f2fd
-    classDef tools fill:#f3e5f5
-    
-    class A,B,C app
-    class D,E,F business
-    class G,H,I infra
-    class J,K,L tools
 ```
 
 ## 🔧 Tecnologías Utilizadas
