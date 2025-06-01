@@ -76,6 +76,28 @@ export class PaymentsService {
       // Actualizamos el total pagado del cliente
       await this.notionService.updateClientTotalPaid(clientResponse.id);
 
+      // Creamos el evento de calendario para el pago recibido
+      try {
+        const paymentMethodDetails = latestCharge?.payment_method_details 
+          ? `${latestCharge.payment_method_details.type}${latestCharge.payment_method_details.card ? ` •••• ${latestCharge.payment_method_details.card.last4}` : ''}`
+          : undefined;
+
+        await this.notionService.createPaymentCalendarEvent({
+          clientName: customerName,
+          clientEmail: customerEmail,
+          amount: payment.amount,
+          currency: payment.currency,
+          transactionId: payment.id,
+          paymentDate: new Date(payment.created * 1000),
+          paymentMethodDetails,
+        });
+
+        console.log(`✅ Evento de calendario creado para el pago de ${customerName}`);
+      } catch (calendarError) {
+        console.error('Error creando evento de calendario:', calendarError);
+        // No lanzamos el error para que no falle todo el proceso si solo falla el calendario
+      }
+
       console.log(`✅ Pago registrado en Notion: ${paymentResult.id}`);
 
       return {
