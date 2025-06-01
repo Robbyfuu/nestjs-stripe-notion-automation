@@ -109,4 +109,94 @@ export class PaymentsService {
       throw error;
     }
   }
+
+  /**
+   * Procesa un pago de test sin hacer llamadas a la API de Stripe
+   */
+  async processTestPayment(paymentIntent: Stripe.PaymentIntent) {
+    try {
+      console.log('🧪 Procesando pago de test:', paymentIntent.id);
+
+      // Para testing, usamos los datos directamente del payload sin llamadas a Stripe
+      let customerEmail: string | null = null;
+      let customerName = 'Cliente sin nombre';
+      let customerPhone: string | null = null;
+
+      // Extraer email del customer si está disponible
+      if (paymentIntent.customer && typeof paymentIntent.customer === 'object') {
+        const customer = paymentIntent.customer as any;
+        customerEmail = customer.email;
+        customerName = customer.name || customerName;
+        customerPhone = customer.phone;
+      }
+
+      // Fallback a metadata si no hay customer
+      if (!customerEmail && paymentIntent.metadata) {
+        customerEmail = paymentIntent.metadata.customer_email;
+        customerName = paymentIntent.metadata.customer_name || customerName;
+      }
+
+      if (!customerEmail) {
+        console.log('🧪 Pago de test sin email del cliente, no se puede registrar en Notion');
+        return;
+      }
+
+      console.log(`🧪 Procesando pago de test: ${customerEmail} - $${(paymentIntent.amount / 100).toFixed(2)} ${paymentIntent.currency.toUpperCase()}`);
+
+      // Creamos o actualizamos el cliente en Notion
+      const clientResponse = await this.notionService.createOrUpdateClient({
+        name: customerName,
+        email: customerEmail,
+        phone: customerPhone,
+        lastPaymentDate: new Date(), // Para test usamos fecha actual
+      });
+
+      // Preparamos los datos del pago para Notion
+      const paymentData = {
+        paymentName: 'PAGO DE TEST - ASESORIA ONLINE',
+        amount: paymentIntent.amount,
+        currency: paymentIntent.currency,
+        transactionId: paymentIntent.id,
+        paymentMethod: 'card',
+        status: paymentIntent.status,
+        customerEmail: customerEmail,
+        clientPageId: clientResponse.id,
+        date: new Date(), // Para test usamos fecha actual
+      };
+
+      // Creamos el registro de pago en Notion
+      const paymentResult = await this.notionService.createPaymentRecord(paymentData);
+
+      // Actualizamos el total pagado del cliente
+      await this.notionService.updateClientTotalPaid(clientResponse.id);
+
+      // Creamos el evento de calendario para el pago recibido
+      try {
+        await this.notionService.createPaymentCalendarEvent({
+          clientName: customerName,
+          clientEmail: customerEmail,
+          amount: paymentIntent.amount,
+          currency: paymentIntent.currency,
+          transactionId: paymentIntent.id,
+          paymentDate: new Date(),
+          paymentMethodDetails: 'card •••• 4242 (TEST)',
+        });
+
+        console.log(`🧪 Evento de calendario de test creado para ${customerName}`);
+      } catch (calendarError) {
+        console.error('Error creando evento de calendario de test:', calendarError);
+        // No lanzamos el error para que no falle todo el proceso si solo falla el calendario
+      }
+
+      console.log(`🧪 Pago de test registrado en Notion: ${paymentResult.id}`);
+
+      return {
+        paymentId: paymentResult.id,
+        clientId: clientResponse.id,
+      };
+    } catch (error) {
+      console.error('Error procesando pago de test:', error);
+      throw error;
+    }
+  }
 }

@@ -46,4 +46,27 @@ export class StripeController {
       throw new Error(`Error processing webhook: ${errorMessage}`);
     }
   }
+
+  @Post('stripe/test')
+  async handleTestWebhook(@Body() body: any) {
+    try {
+      console.log('🧪 Test webhook recibido:', JSON.stringify(body, null, 2));
+
+      // Para testing, procesamos directamente el evento sin validar firma
+      if (body.type === 'payment_intent.succeeded') {
+        const paymentIntent = body.data.object as Stripe.PaymentIntent;
+        console.log('🎯 Procesando payment_intent de test:', paymentIntent.id);
+        
+        // Para testing, procesamos el pago directamente sin llamadas a Stripe API
+        await this.paymentsService.processTestPayment(paymentIntent);
+        return { received: true, message: 'Test webhook processed successfully' };
+      }
+
+      return { received: true, message: 'Test webhook received but not processed' };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error('❌ Error processing test webhook:', errorMessage);
+      throw new Error(`Error processing test webhook: ${errorMessage}`);
+    }
+  }
 }
