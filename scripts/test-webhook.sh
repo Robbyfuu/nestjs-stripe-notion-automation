@@ -22,7 +22,7 @@ print_color() {
 
 # URLs de webhook
 WEBHOOK_DEV="https://nestjs-stripe-notion-dev.fly.dev/webhook/stripe/test"
-WEBHOOK_PROD="https://nestjs-stripe-notion.fly.dev/webhook/stripe/test"
+WEBHOOK_PROD="https://nestjs-stripe-notion.fly.dev/webhook/stripe"
 
 # Función para mostrar ayuda
 show_help() {
