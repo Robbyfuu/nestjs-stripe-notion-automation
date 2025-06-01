@@ -44,6 +44,10 @@ git push origin main
 | `pnpm run setup:notion` | Configurar integración de Notion (compartida) |
 | `pnpm run setup:dev` | Configurar credenciales de **DESARROLLO** |
 | `pnpm run setup:prod` | Configurar credenciales de **PRODUCCIÓN** |
+<<<<<<< HEAD
+=======
+| `pnpm run setup:interactive` | **🆕 Gestor interactivo de variables** |
+>>>>>>> develop
 | `pnpm run dev` | Desarrollo completo con webhooks |
 | `pnpm run prod` | **Producción local con verificaciones** |
 | `pnpm run deploy:dev` | **🚀 Deploy manual a staging** |
@@ -100,14 +104,26 @@ Gestionadas automáticamente por 1Password **separadas por ambiente**:
 ### 🧪 DESARROLLO (Development/Staging)
 - `STRIPE_SECRET_KEY` → `NestJS Stripe API`
 - `STRIPE_WEBHOOK_SECRET` → `NestJS Stripe Webhook`
+<<<<<<< HEAD
 - `NOTION_PAYMENTS_DATABASE_ID` → `NestJS Notion Databases`
 - `NOTION_CLIENTS_DATABASE_ID` → `NestJS Notion Databases`
+=======
+- `NOTION_CLIENTS_DATABASE_ID` → `NestJS Notion Databases`
+- `NOTION_PAYMENTS_DATABASE_ID` → `NestJS Notion Databases`
+- `NOTION_CALENDAR_DATABASE_ID` → `NestJS Notion Databases` 🆕
+>>>>>>> develop
 
 ### 🏭 PRODUCCIÓN
 - `STRIPE_SECRET_KEY` → `NestJS Stripe API PROD` 
 - `STRIPE_WEBHOOK_SECRET` → `NestJS Stripe Webhook PROD`
+<<<<<<< HEAD
 - `NOTION_PAYMENTS_DATABASE_ID` → `NestJS Notion Databases PROD`
 - `NOTION_CLIENTS_DATABASE_ID` → `NestJS Notion Databases PROD`
+=======
+- `NOTION_CLIENTS_DATABASE_ID` → `NestJS Notion Databases PROD`
+- `NOTION_PAYMENTS_DATABASE_ID` → `NestJS Notion Databases PROD`
+- `NOTION_CALENDAR_DATABASE_ID` → `NestJS Notion Databases PROD` 🆕
+>>>>>>> develop
 
 ### 📚 COMPARTIDO (Ambos ambientes)
 - `NOTION_SECRET` → `NestJS Notion Integration`
@@ -120,7 +136,57 @@ Gestionadas automáticamente por 1Password **separadas por ambiente**:
 4. Extrae datos del cliente y pago
 5. Crea/actualiza registro de cliente en Notion
 6. Registra pago en base de datos de Notion
-7. Actualiza total pagado del cliente
+7. **🆕 Crea evento de calendario automáticamente**
+8. Actualiza total pagado del cliente
+
+## 🆕 Funcionalidades Nuevas
+
+### 📅 Calendario Automático de Pagos
+Cuando un cliente realiza un pago, el sistema automáticamente:
+- ✅ Crea un evento en tu calendario de Notion
+- 📋 Incluye detalles: cliente, monto, método de pago
+- 🕒 Usa la fecha/hora exacta del pago
+- 💰 Formato: `💰 Pago recibido - [Nombre Cliente]`
+
+### 🎛️ Gestor Interactivo de Variables
+```bash
+pnpm run setup:interactive
+```
+**Características:**
+- 🎨 Interfaz con colores y menús intuitivos
+- 📊 Estado en tiempo real de todas las variables
+- ⚡ Configuración rápida por ambiente
+- 🔍 Visualización enmascarada de valores
+- ✏️ Modificación individual de variables
+- 🗑️ Eliminación de variables (con confirmación)
+- 📱 Compatible con macOS y Linux
+
+## 🚀 Deployment Automático con GitHub Actions
+
+### 1. Configuración Inicial
+```bash
+# Configurar token de Fly.io en GitHub
+# Ve a: Settings → Secrets and variables → Actions
+# Agrega: FLY_API_TOKEN = tu_token_de_flyio
+```
+
+### 2. Flujo de Deployment
+```bash
+# Para staging
+git checkout develop
+git add .
+git commit -m "feat: nueva funcionalidad"
+git push origin develop  # ← Deploy automático a staging
+
+# Para producción
+git checkout main
+git merge develop
+git push origin main     # ← Deploy automático a producción
+```
+
+### 3. URLs de las Aplicaciones
+- **Staging**: `https://nestjs-stripe-notion-dev.fly.dev`
+- **Production**: `https://nestjs-stripe-notion.fly.dev`
 
 ## 🚀 Deployment Automático con GitHub Actions
 
@@ -154,6 +220,7 @@ git push origin main     # ← Deploy automático a producción
 ### 1. Webhooks de Stripe
 1. **Development**: Ve a [Stripe Dashboard → Test Webhooks](https://dashboard.stripe.com/test/webhooks)
    - Endpoint: `https://nestjs-stripe-notion-dev.fly.dev/webhook/stripe`
+<<<<<<< HEAD
    - Evento: `payment_intent.succeeded`
 
 2. **Production**: Ve a [Stripe Dashboard → Live Webhooks](https://dashboard.stripe.com/webhooks)
@@ -241,3 +308,6 @@ pnpm run fly:status:prod # Production
 ---
 
 **Desarrollado con NestJS + Stripe + Notion + 1Password + Docker + Fly.io + GitHub Actions**
+=======
+   - Evento: `
+>>>>>>> develop

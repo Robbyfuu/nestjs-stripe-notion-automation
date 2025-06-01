@@ -33,6 +33,10 @@ if [ "$ENVIRONMENT" = "production" ]; then
     # Bases de datos de Notion para PRODUCCIÓN
     export NOTION_PAYMENTS_DATABASE_ID=$(op item get "NestJS Notion Databases PROD" --field "Payments Database ID" 2>/dev/null || echo "")
     export NOTION_CLIENTS_DATABASE_ID=$(op item get "NestJS Notion Databases PROD" --field "Clients Database ID" 2>/dev/null || echo "")
+<<<<<<< HEAD
+=======
+    export NOTION_CALENDAR_DATABASE_ID=$(op item get "NestJS Notion Databases PROD" --field "Calendar Database ID" 2>/dev/null || echo "")
+>>>>>>> develop
 else
     # Credenciales de DESARROLLO/TEST
     export STRIPE_SECRET_KEY=$(op item get "NestJS Stripe API" --field "Secret Key" --reveal 2>/dev/null || echo "")
@@ -41,6 +45,10 @@ else
     # Bases de datos de Notion para DESARROLLO
     export NOTION_PAYMENTS_DATABASE_ID=$(op item get "NestJS Notion Databases" --field "Payments Database ID" 2>/dev/null || echo "")
     export NOTION_CLIENTS_DATABASE_ID=$(op item get "NestJS Notion Databases" --field "Clients Database ID" 2>/dev/null || echo "")
+<<<<<<< HEAD
+=======
+    export NOTION_CALENDAR_DATABASE_ID=$(op item get "NestJS Notion Databases" --field "Calendar Database ID" 2>/dev/null || echo "")
+>>>>>>> develop
 fi
 
 echo "📥 Obteniendo credenciales de Notion (compartidas)..."
@@ -71,6 +79,13 @@ fi
 
 if [ -z "$NOTION_CLIENTS_DATABASE_ID" ]; then
     missing_vars+=("NOTION_CLIENTS_DATABASE_ID ($ENVIRONMENT)")
+<<<<<<< HEAD
+=======
+fi
+
+if [ -z "$NOTION_CALENDAR_DATABASE_ID" ]; then
+    missing_vars+=("NOTION_CALENDAR_DATABASE_ID ($ENVIRONMENT)")
+>>>>>>> develop
 fi
 
 if [ ${#missing_vars[@]} -ne 0 ]; then

@@ -98,13 +98,22 @@ echo ""
 
 read -p "🗄️  Database ID de CLIENTES (production): " clients_db_prod
 read -p "💰 Database ID de PAGOS (production): " payments_db_prod
+<<<<<<< HEAD
+=======
+read -p "📅 Database ID de CALENDARIO (production): " calendar_db_prod
+>>>>>>> develop
 
 # Crear entrada para Notion Databases (Production)
 if op item get "NestJS Notion Databases PROD" &>/dev/null; then
     echo "✏️  Actualizando entrada existente..."
     op item edit "NestJS Notion Databases PROD" \
         "Clients Database ID[text]"="$clients_db_prod" \
+<<<<<<< HEAD
         "Payments Database ID[text]"="$payments_db_prod"
+=======
+        "Payments Database ID[text]"="$payments_db_prod" \
+        "Calendar Database ID[text]"="$calendar_db_prod"
+>>>>>>> develop
 else
     echo "🆕 Creando nueva entrada..."
     op item create \
@@ -112,6 +121,10 @@ else
         --title "NestJS Notion Databases PROD" \
         "Clients Database ID[text]"="$clients_db_prod" \
         "Payments Database ID[text]"="$payments_db_prod" \
+<<<<<<< HEAD
+=======
+        "Calendar Database ID[text]"="$calendar_db_prod" \
+>>>>>>> develop
         --tags "nestjs,notion,production"
 fi
 
@@ -126,8 +139,14 @@ stripe_key=$(op item get "NestJS Stripe API PROD" --field "Secret Key" --reveal 
 webhook_secret=$(op item get "NestJS Stripe Webhook PROD" --field "Webhook Secret" --reveal 2>/dev/null || echo "ERROR")
 clients_db=$(op item get "NestJS Notion Databases PROD" --field "Clients Database ID" 2>/dev/null || echo "ERROR")
 payments_db=$(op item get "NestJS Notion Databases PROD" --field "Payments Database ID" 2>/dev/null || echo "ERROR")
+<<<<<<< HEAD
 
 if [[ $stripe_key == "ERROR" || $webhook_secret == "ERROR" || $clients_db == "ERROR" || $payments_db == "ERROR" ]]; then
+=======
+calendar_db=$(op item get "NestJS Notion Databases PROD" --field "Calendar Database ID" 2>/dev/null || echo "ERROR")
+
+if [[ $stripe_key == "ERROR" || $webhook_secret == "ERROR" || $clients_db == "ERROR" || $payments_db == "ERROR" || $calendar_db == "ERROR" ]]; then
+>>>>>>> develop
     echo "❌ Error en la verificación. Algunas credenciales no se pudieron leer."
     exit 1
 fi

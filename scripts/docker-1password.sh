@@ -105,14 +105,12 @@ case $MODE in
         echo "🚀 Iniciando Docker en modo DESARROLLO..."
         echo "   - Hot reload habilitado"
         echo "   - Debug port: 9229"
-        echo "   - Redis dev: 6380"
         echo ""
         docker-compose -f docker-compose.dev.yml up --build
         ;;
     "prod"|"production")
         echo "🏭 Iniciando Docker en modo PRODUCCIÓN..."
         echo "   - Imagen optimizada"
-        echo "   - Redis: 6379"
         echo "   - Health checks habilitados"
         echo "   - Logs en ./logs/"
         echo ""

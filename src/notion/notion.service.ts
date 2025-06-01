@@ -7,6 +7,7 @@ export class NotionService {
   private notion: Client;
   private paymentsDbId: string;
   private clientsDbId: string;
+  private calendarDbId: string;
 
   constructor(@Inject(ConfigService) private configService: ConfigService) {
     this.notion = new Client({
@@ -14,6 +15,7 @@ export class NotionService {
     });
     this.paymentsDbId = this.configService.get<string>('NOTION_PAYMENTS_DATABASE_ID')!;
     this.clientsDbId = this.configService.get<string>('NOTION_CLIENTS_DATABASE_ID')!;
+    this.calendarDbId = this.configService.get<string>('NOTION_CALENDAR_DATABASE_ID')!;
   }
 
   /**
@@ -233,6 +235,86 @@ export class NotionService {
       return totalPaid;
     } catch (error) {
       console.error('Error actualizando total pagado del cliente:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Crea un evento de calendario para un pago recibido
+   */
+  async createPaymentCalendarEvent(eventData: {
+    clientName: string;
+    clientEmail: string;
+    amount: number;
+    currency: string;
+    transactionId: string;
+    paymentDate: Date;
+    paymentMethodDetails?: string;
+  }) {
+    try {
+      const { clientName, clientEmail, amount, currency, transactionId, paymentDate, paymentMethodDetails } = eventData;
+      
+      const amountFormatted = (amount / 100).toFixed(2);
+      const eventTitle = `💰 Pago recibido - ${clientName}`;
+      const eventDescription = `Cliente: ${clientEmail}\nMonto: $${amountFormatted} ${currency.toUpperCase()}\nID: ${transactionId}${paymentMethodDetails ? `\nMétodo: ${paymentMethodDetails}` : ''}`;
+
+      return await this.notion.pages.create({
+        parent: {
+          database_id: this.calendarDbId,
+        },
+        properties: {
+          'Título': {
+            title: [
+              {
+                text: {
+                  content: eventTitle,
+                },
+              },
+            ],
+          },
+          'Fecha': {
+            date: {
+              start: paymentDate.toISOString(),
+            },
+          },
+          'Tipo': {
+            select: {
+              name: 'Pago',
+            },
+          },
+          'Cliente': {
+            rich_text: [
+              {
+                text: {
+                  content: clientName,
+                },
+              },
+            ],
+          },
+          'Email': {
+            email: clientEmail,
+          },
+          'Monto': {
+            number: amount / 100,
+          },
+          'Descripción': {
+            rich_text: [
+              {
+                text: {
+                  content: eventDescription,
+                },
+              },
+            ],
+          },
+          'Estado': {
+            select: {
+              name: 'Completado',
+            },
+          },
+        },
+      });
+    } catch (error) {
+      console.error('Error creando evento de calendario en Notion:', error);
       throw error;
     }
   }
