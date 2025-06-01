@@ -23,6 +23,7 @@
     "setup:dev": "./scripts/setup-1password-dev.sh",
     "setup:prod": "./scripts/setup-1password-prod.sh",
     "setup:notion": "./scripts/setup-notion-shared.sh",
+
     "setup:interactive": "./scripts/setup-1password-simple.sh",
     "setup:cleanup": "./scripts/cleanup-1password.sh",
     "setup:help": "echo '🔧 Scripts de configuración disponibles:' && echo '  setup:interactive  - Configuración interactiva completa (recomendado)' && echo '  setup:dev         - Solo variables de desarrollo' && echo '  setup:prod        - Solo variables de producción' && echo '  setup:notion      - Solo integración de Notion' && echo '  setup:cleanup     - Limpiar entradas corruptas de 1Password' && echo '' && echo '🚀 Scripts de deploy disponibles:' && echo '  deploy:dev        - Deploy a ambiente desarrollo' && echo '  deploy:prod       - Deploy a ambiente producción' && echo '  deploy:help       - Ayuda para deploy' && echo '' && echo '🛩️ Scripts de gestión Fly.io:' && echo '  fly:apps         - Gestionar aplicaciones Fly.io' && echo '  fly:list         - Listar aplicaciones' && echo '  fly:suggest      - Sugerir nombres disponibles'",
