@@ -1,6 +1,6 @@
-# NestJS Stripe Notion Automation
+# NestJS Stripe Notion WhatsApp Automation
 
-Sistema de automatización que conecta pagos de Stripe con bases de datos de Notion.
+Sistema de automatización que conecta pagos de Stripe con bases de datos de Notion y notificaciones WhatsApp.
 
 ## ⚡ Inicio Rápido
 
@@ -15,121 +15,168 @@ pnpm run setup:notion
 # Configurar credenciales de DESARROLLO
 pnpm run setup:dev
 
-# Configurar credenciales de PRODUCCIÓN
+# Configurar credenciales de PRODUCCIÓN (opcional)
 pnpm run setup:prod
 ```
 
-### 2. Desarrollo
+### 2. Desarrollo Local
 ```bash
-# Desarrollo completo (Docker + Stripe webhooks)
-pnpm run dev
+# Desarrollo local sin Docker (recomendado)
+pnpm run dev:local
 
-# Solo aplicación en Docker
+# Desarrollo con Docker
 pnpm run docker:dev
 ```
 
-### 3. Deployment Automático
+### 3. Testing y Producción
 ```bash
-# Push a develop → Deploy automático a staging
-git push origin develop
+# Testing con Docker
+pnpm run docker:test
 
-# Merge a main → Deploy automático a producción
-git push origin main
+# Producción local con Docker
+pnpm run docker:prod
 ```
 
 ## 🔧 Comandos Principales
 
 | Comando | Descripción |
 |---------|-------------|
-| `pnpm run setup:notion` | Configurar integración de Notion (compartida) |
-| `pnpm run setup:dev` | Configurar credenciales de **DESARROLLO** |
-| `pnpm run setup:prod` | Configurar credenciales de **PRODUCCIÓN** 
-| `pnpm run setup:interactive` | **🆕 Gestor interactivo de variables** 
-| `pnpm run dev` | Desarrollo completo con webhooks |
-| `pnpm run prod` | **Producción local con verificaciones** |
-| `pnpm run deploy:dev` | **🚀 Deploy manual a staging** |
-| `pnpm run deploy:prod` | **🚀 Deploy manual a producción** |
-| `pnpm run fly:logs:dev` | Ver logs de staging |
-| `pnpm run fly:logs:prod` | Ver logs de producción |
-| `pnpm run fly:status:dev` | Estado de staging |
-| `pnpm run fly:status:prod` | Estado de producción |
-| `pnpm run docker:dev` | Solo aplicación en Docker (desarrollo) |
-| `pnpm run docker:prod` | Solo aplicación en Docker (producción) |
-| `pnpm run docker:down` | Detener contenedores |
-| `pnpm run docker:logs` | Ver logs de Docker |
+| `pnpm run dev:local` | **🚀 Desarrollo local directo** |
+| `pnpm run docker:dev` | Desarrollo con Docker |
+| `pnpm run docker:test` | Testing con Docker |
+| `pnpm run docker:prod` | Producción con Docker |
+| `pnpm run setup:notion` | Configurar integración de Notion |
+| `pnpm run setup:dev` | Configurar credenciales DEV |
+| `pnpm run setup:prod` | Configurar credenciales PROD |
+| `pnpm run setup:interactive` | Gestor interactivo de variables |
+| `pnpm run docker:down` | Detener todos los contenedores |
+| `pnpm run docker:logs:dev` | Ver logs de desarrollo |
 
 ## 🏗️ Arquitectura
 
 ```
 Stripe Webhook → NestJS → Notion
+                    ↓
+              WhatsApp (Twilio)
 ```
 
 1. **Webhook de Stripe** recibe evento de pago
 2. **NestJS** procesa y valida el evento  
 3. **Notion** guarda cliente y pago automáticamente
+4. **WhatsApp** envía notificación al cliente
 
-## 🌍 Ambientes
+## 📱 WhatsApp Integration
 
-### 🧪 Development (Staging)
-- **App**: `nestjs-stripe-notion-dev.fly.dev`
-- **Branch**: `develop`
-- **Deploy**: Automático en push a `develop`
-- **Stripe**: Claves de TEST (`sk_test_`)
-- **Notion**: Bases de datos de desarrollo
+### Configuración
+- **Proveedor**: Twilio (configurado)
+- **Número**: +14155238886
+- **Sandbox**: Solo números registrados
+- **API alternativa**: Meta WhatsApp (deshabilitada)
 
-### 🏭 Production
-- **App**: `nestjs-stripe-notion.fly.dev`
-- **Branch**: `main`
-- **Deploy**: Automático en merge a `main`
-- **Stripe**: Claves REALES (`sk_live_`)
-- **Notion**: Bases de datos de producción
+### Endpoints
+```bash
+# Enviar mensaje simple
+POST /whatsapp/send
+{
+  "to": "+56996419674",
+  "body": "¡Hola desde NestJS!"
+}
+
+# Mensaje de bienvenida
+POST /whatsapp/welcome
+{
+  "to": "+56996419674",
+  "customerName": "Roberto"
+}
+
+# Confirmación de pago
+POST /whatsapp/payment-confirmation
+{
+  "to": "+56996419674",
+  "customerName": "Roberto",
+  "amount": 150.00,
+  "paymentMethod": "tarjeta"
+}
+
+# Estado del servicio
+GET /whatsapp/status
+```
+
+📚 **[Ver guía completa de WhatsApp →](WHATSAPP_SETUP.md)**
+
+## 🐳 Entornos Docker
+
+### Puertos configurados:
+- **DEV**: Puerto 3000 (desarrollo)
+- **TEST**: Puerto 3001 (testing)
+- **PROD**: Puerto 3002 (producción)
+
+### URLs locales:
+- **Desarrollo**: `http://localhost:3000`
+- **Testing**: `http://localhost:3001`
+- **Producción**: `http://localhost:3002`
 
 ## 📋 Requisitos
 
+- **Node.js 18+** y **pnpm**
 - **1Password CLI** para gestión de secrets
-- **Stripe CLI** para webhooks de desarrollo
-- **Docker** para contenedores
-- **GitHub** para deployment automático
+- **Docker** (opcional, para contenedores)
 - **Credenciales:**
-  - Stripe API Key + Webhook Secret (por ambiente)
-  - Notion Integration Token + Database IDs (por ambiente)
+  - Stripe API Key + Webhook Secret
+  - Notion Integration Token + Database IDs
+  - WhatsApp Twilio Account SID + Auth Token
 
 ## 🔑 Variables de Entorno
 
-Gestionadas automáticamente por 1Password **separadas por ambiente**:
+Gestionadas automáticamente por 1Password:
 
-### 🧪 DESARROLLO (Development/Staging)
+### 🧪 DESARROLLO
 - `STRIPE_SECRET_KEY` → `NestJS Stripe API`
 - `STRIPE_WEBHOOK_SECRET` → `NestJS Stripe Webhook`
 - `NOTION_CLIENTS_DATABASE_ID` → `NestJS Notion Databases`
 - `NOTION_PAYMENTS_DATABASE_ID` → `NestJS Notion Databases`
-- `NOTION_CALENDAR_DATABASE_ID` → `NestJS Notion Databases` 🆕
-
+- `NOTION_CALENDAR_DATABASE_ID` → `NestJS Notion Databases`
 
 ### 🏭 PRODUCCIÓN
 - `STRIPE_SECRET_KEY` → `NestJS Stripe API PROD` 
 - `STRIPE_WEBHOOK_SECRET` → `NestJS Stripe Webhook PROD`
 - `NOTION_CLIENTS_DATABASE_ID` → `NestJS Notion Databases PROD`
 - `NOTION_PAYMENTS_DATABASE_ID` → `NestJS Notion Databases PROD`
-- `NOTION_CALENDAR_DATABASE_ID` → `NestJS Notion Databases PROD` 🆕
+- `NOTION_CALENDAR_DATABASE_ID` → `NestJS Notion Databases PROD`
 
-
-### 📚 COMPARTIDO (Ambos ambientes)
+### 📚 COMPARTIDO
 - `NOTION_SECRET` → `NestJS Notion Integration`
+- `TWILIO_ACCOUNT_SID` → `NestJS WhatsApp Twilio`
+- `TWILIO_AUTH_TOKEN` → `NestJS WhatsApp Twilio`
+- `TWILIO_WHATSAPP_FROM` → `NestJS WhatsApp Twilio`
 
-## 📝 Flujo de Trabajo
+## 📝 Flujo de Desarrollo
 
-1. Cliente realiza pago en Stripe
-2. Stripe envía webhook a `/webhook/stripe`
-3. Sistema verifica firma del webhook
-4. Extrae datos del cliente y pago
-5. Crea/actualiza registro de cliente en Notion
-6. Registra pago en base de datos de Notion
+### Desarrollo diario:
+```bash
+# 1. Desarrollo local rápido
+pnpm run dev:local
 
-7. **🆕 Crea evento de calendario automáticamente**
-8. Actualiza total pagado del cliente
+# 2. Testing con Docker (cuando necesites)
+pnpm run docker:test
 
-## 🆕 Funcionalidades Nuevas
+# 3. Testing completo
+curl http://localhost:3000/health
+curl -X POST http://localhost:3000/whatsapp/send \
+  -H "Content-Type: application/json" \
+  -d '{"to": "+56996419674", "body": "Test local"}'
+```
+
+### Webhooks de Stripe locales:
+```bash
+# Terminal 1: Levantar la app
+pnpm run dev:local
+
+# Terminal 2: Stripe CLI para webhooks
+stripe listen --forward-to localhost:3000/webhook/stripe
+```
+
+## 🆕 Funcionalidades
 
 ### 📅 Calendario Automático de Pagos
 Cuando un cliente realiza un pago, el sistema automáticamente:
@@ -148,128 +195,6 @@ pnpm run setup:interactive
 - ⚡ Configuración rápida por ambiente
 - 🔍 Visualización enmascarada de valores
 - ✏️ Modificación individual de variables
-- 🗑️ Eliminación de variables (con confirmación)
-- 📱 Compatible con macOS y Linux
-
-## 🚀 Deployment Automático con GitHub Actions
-
-### 1. Configuración Inicial
-```bash
-# Configurar token de Fly.io en GitHub
-# Ve a: Settings → Secrets and variables → Actions
-# Agrega: FLY_API_TOKEN = tu_token_de_flyio
-```
-
-### 2. Flujo de Deployment
-```bash
-# Para staging
-git checkout develop
-git add .
-git commit -m "feat: nueva funcionalidad"
-git push origin develop  # ← Deploy automático a staging
-
-# Para producción
-git checkout main
-git merge develop
-git push origin main     # ← Deploy automático a producción
-```
-
-### 3. URLs de las Aplicaciones
-- **Staging**: `https://nestjs-stripe-notion-dev.fly.dev`
-- **Production**: `https://nestjs-stripe-notion.fly.dev`
-
-## 🏭 Configuración para Producción
-
-### 1. Webhooks de Stripe
-1. **Development**: Ve a [Stripe Dashboard → Test Webhooks](https://dashboard.stripe.com/test/webhooks)
-   - Endpoint: `https://nestjs-stripe-notion-dev.fly.dev/webhook/stripe`
-   - Evento: `
-=======
-7. Actualiza total pagado del cliente
-
-## 🚀 Deployment Automático con GitHub Actions
-
-### 1. Configuración Inicial
-```bash
-# Configurar token de Fly.io en GitHub
-# Ve a: Settings → Secrets and variables → Actions
-# Agrega: FLY_API_TOKEN = tu_token_de_flyio
-```
-
-### 2. Flujo de Deployment
-```bash
-# Para staging
-git checkout develop
-git add .
-git commit -m "feat: nueva funcionalidad"
-git push origin develop  # ← Deploy automático a staging
-
-# Para producción
-git checkout main
-git merge develop
-git push origin main     # ← Deploy automático a producción
-```
-
-### 3. URLs de las Aplicaciones
-- **Staging**: `https://nestjs-stripe-notion-dev.fly.dev`
-- **Production**: `https://nestjs-stripe-notion.fly.dev`
-
-## 🏭 Configuración para Producción
-
-### 1. Webhooks de Stripe
-1. **Development**: Ve a [Stripe Dashboard → Test Webhooks](https://dashboard.stripe.com/test/webhooks)
-   - Endpoint: `https://nestjs-stripe-notion-dev.fly.dev/webhook/stripe`
-   - Evento: `payment_intent.succeeded`
-
-2. **Production**: Ve a [Stripe Dashboard → Live Webhooks](https://dashboard.stripe.com/webhooks)
-   - Endpoint: `https://nestjs-stripe-notion.fly.dev/webhook/stripe`
-   - Evento: `payment_intent.succeeded`
-
-### 2. Bases de Datos de Notion
-Crea **4 bases de datos separadas**:
-- `Clientes DEV` + `Pagos DEV` (para staging)
-- `Clientes PROD` + `Pagos PROD` (para producción)
-
-### 3. Verificación de Health
-```bash
-# Staging
-curl https://nestjs-stripe-notion-dev.fly.dev/health
-
-# Production
-curl https://nestjs-stripe-notion.fly.dev/health
-```
-
-### 4. Seguridad
-- ✅ Headers de seguridad configurados
-- ✅ Usuario no-root en Docker
-- ✅ Verificación de firmas de webhook
-- ✅ Logs optimizados para producción
-- ✅ Health checks automáticos
-- ✅ Auto-rollback en errores
-
-## ☁️ Características de Fly.io
-
-### 🎯 Auto-scaling
-- **Development**: Se duerme sin tráfico (ahorro de costos)
-- **Production**: Escalado automático según demanda
-
-### 🔄 Deployment Features
-- ✅ Deploy automático desde GitHub
-- ✅ Rollback automático en errores
-- ✅ Health checks antes de activar
-- ✅ Zero-downtime deployments
-- ✅ SSL/HTTPS automático
-
-### 📊 Monitoreo
-```bash
-# Logs en tiempo real
-pnpm run fly:logs:dev    # Staging
-pnpm run fly:logs:prod   # Production
-
-# Estado de aplicaciones
-pnpm run fly:status:dev  # Staging
-pnpm run fly:status:prod # Production
-```
 
 ## 🔧 Troubleshooting
 
@@ -278,32 +203,51 @@ pnpm run fly:status:prod # Production
 - **Firma inválida**: Confirma que la URL del webhook esté configurada correctamente
 - **No recibe eventos**: Revisa que `payment_intent.succeeded` esté seleccionado
 
+### Problemas con WhatsApp
+- **Mensaje no se envía**: Verifica que el número esté registrado en Twilio sandbox
+- **Error 401**: Confirma TWILIO_ACCOUNT_SID y TWILIO_AUTH_TOKEN en variables
+- **Número inválido**: Usa formato internacional: +56996419674
+
 ### Problemas con 1Password
 - **CLI no encontrado**: Instala con `brew install --cask 1password/tap/1password-cli`
 - **No autenticado**: Ejecuta `eval $(op signin)` 
 - **Credenciales no encontradas**: Verifica nombres exactos de las entradas
 
-### Problemas con GitHub Actions
-- **Deploy falla**: Verifica que `FLY_API_TOKEN` esté configurado en GitHub Secrets
-- **App no existe**: Crea las apps con `flyctl apps create nestjs-stripe-notion` y `nestjs-stripe-notion-dev`
-- **Permisos**: Confirma que el token tenga permisos de deploy
-
-### Problemas con Fly.io
-- **App no responde**: Revisa logs con `pnpm run fly:logs:dev` o `pnpm run fly:logs:prod`
-- **Health check falla**: Confirma que `/health` devuelva 200
-- **Variables no cargadas**: Verifica que 1Password CLI esté funcionando en el container
-
 ### Problemas con Docker
 - **Error de permisos**: Asegúrate de que Docker esté corriendo
 - **Variables no cargadas**: Verifica que 1Password CLI esté funcionando
-- **Puerto ocupado**: Usa `docker-compose down` para limpiar
+- **Puerto ocupado**: Usa `pnpm run docker:down` para limpiar
+
+## 📊 Health Checks
+
+### Verificar servicios:
+```bash
+# Local
+curl http://localhost:3000/health
+
+# Docker DEV
+curl http://localhost:3000/health
+
+# Docker TEST  
+curl http://localhost:3001/health
+
+# Docker PROD
+curl http://localhost:3002/health
+```
+
+### Estado de WhatsApp:
+```bash
+curl http://localhost:3000/whatsapp/status
+```
 
 ## 📚 Documentación
 
-- 📖 **[Guía de Desarrollo](DEVELOPMENT.md)** - Workflow con branches y convenciones
-- 🏗️ **[Documentación Técnica](docs/)** - Arquitectura y diagramas del sistema
+- 📱 **[WhatsApp Setup Guide](WHATSAPP_SETUP.md)** - Integración de WhatsApp con Twilio
+- 🐳 **[Docker Guide](README-DOCKER.md)** - Desarrollo con Docker
+- 📖 **[Development Guide](DEVELOPMENT.md)** - Workflow de desarrollo
+- 🏗️ **[Technical Docs](docs/)** - Arquitectura y diagramas
 
 ---
 
-**Desarrollado con NestJS + Stripe + Notion + 1Password + Docker + Fly.io + GitHub Actions**
+**Desarrollado con NestJS + Stripe + Notion + WhatsApp + 1Password + Docker**
 
