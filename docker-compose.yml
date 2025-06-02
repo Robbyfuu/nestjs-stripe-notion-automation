@@ -1,37 +1,109 @@
-version: '3.8'
+# 🐳 Docker Compose - NestJS Stripe Notion WhatsApp
+# version: '3.8'  # Removed obsolete version field
 
 services:
-  # Aplicación NestJS
-  nestjs-stripe:
+  # ================================
+  # Desarrollo Local
+  # ================================
+  nestjs-dev:
     build:
       context: .
-      dockerfile: Dockerfile
-      target: production
-    container_name: nestjs-stripe-app
-    restart: unless-stopped
+      target: development
+    container_name: nestjs-stripe-dev
     ports:
       - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=dev
+      - PORT=3000
+      # Variables de Stripe
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      # Variables de Notion  
+      - NOTION_SECRET=${NOTION_SECRET}
+      - NOTION_CLIENTS_DATABASE_ID=${NOTION_CLIENTS_DATABASE_ID}
+      - NOTION_PAYMENTS_DATABASE_ID=${NOTION_PAYMENTS_DATABASE_ID}
+      - NOTION_CALENDAR_DATABASE_ID=${NOTION_CALENDAR_DATABASE_ID}
+      # Variables de WhatsApp
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+      - TWILIO_WHATSAPP_FROM=${TWILIO_WHATSAPP_FROM}
+      - USE_META_WHATSAPP_API=${USE_META_WHATSAPP_API}
+    restart: unless-stopped
+    networks:
+      - nestjs-network
+
+  # ================================
+  # Test Environment 
+  # ================================
+  nestjs-test:
+    build:
+      context: .
+      target: development
+    container_name: nestjs-stripe-test
+    ports:
+      - "3001:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=test
+      - PORT=3000
+      # Variables de Stripe
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      # Variables de Notion  
+      - NOTION_SECRET=${NOTION_SECRET}
+      - NOTION_CLIENTS_DATABASE_ID=${NOTION_CLIENTS_DATABASE_ID}
+      - NOTION_PAYMENTS_DATABASE_ID=${NOTION_PAYMENTS_DATABASE_ID}
+      - NOTION_CALENDAR_DATABASE_ID=${NOTION_CALENDAR_DATABASE_ID}
+      # Variables de WhatsApp
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+      - TWILIO_WHATSAPP_FROM=${TWILIO_WHATSAPP_FROM}
+      - USE_META_WHATSAPP_API=${USE_META_WHATSAPP_API}
+    restart: unless-stopped
+    networks:
+      - nestjs-network
+
+  # ================================
+  # Production Environment
+  # ================================
+  nestjs-prod:
+    build:
+      context: .
+      target: production
+    container_name: nestjs-stripe-prod
+    ports:
+      - "3002:3000"
     environment:
       - NODE_ENV=production
       - PORT=3000
-    env_file:
-      - .env
-    volumes:
-      # Solo logs para producción
-      - ./logs:/app/logs
-    depends_on:
-      - redis
+      # Variables de Stripe
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      # Variables de Notion  
+      - NOTION_SECRET=${NOTION_SECRET}
+      - NOTION_CLIENTS_DATABASE_ID=${NOTION_CLIENTS_DATABASE_ID}
+      - NOTION_PAYMENTS_DATABASE_ID=${NOTION_PAYMENTS_DATABASE_ID}
+      - NOTION_CALENDAR_DATABASE_ID=${NOTION_CALENDAR_DATABASE_ID}
+      # Variables de WhatsApp
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+      - TWILIO_WHATSAPP_FROM=${TWILIO_WHATSAPP_FROM}
+      - USE_META_WHATSAPP_API=${USE_META_WHATSAPP_API}
+    restart: unless-stopped
     networks:
       - nestjs-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-
-
 
 networks:
   nestjs-network:
-    driver: bridge 
+    driver: bridge
+
+# ================================
+# Volúmenes
+# ================================
+volumes:
+  node_modules: 

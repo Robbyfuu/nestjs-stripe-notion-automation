@@ -1,5 +1,4 @@
-version: '3.8'
-
+# Docker Compose para desarrollo - Sin dependencia de Redis
 services:
   # Aplicación NestJS en modo desarrollo
   nestjs-stripe-dev:
@@ -22,8 +21,6 @@ services:
       - .:/app
       - /app/node_modules
       - ./logs:/app/logs
-    depends_on:
-      - redis-dev
     networks:
       - nestjs-dev-network
     command: pnpm run start:debug
