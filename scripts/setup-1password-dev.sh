@@ -88,7 +88,9 @@ echo ""
 
 read -p "🗄️  Database ID de CLIENTES (development): " clients_db_dev
 read -p "💰 Database ID de PAGOS (development): " payments_db_dev
+
 read -p "📅 Database ID de CALENDARIO (development): " calendar_db_dev
+
 
 # Crear entrada para Notion Databases (Development)
 if op item get "NestJS Notion Databases" &>/dev/null; then
@@ -97,6 +99,7 @@ if op item get "NestJS Notion Databases" &>/dev/null; then
         "Clients Database ID[text]"="$clients_db_dev" \
         "Payments Database ID[text]"="$payments_db_dev" \
         "Calendar Database ID[text]"="$calendar_db_dev"
+
 else
     echo "🆕 Creando nueva entrada..."
     op item create \
@@ -104,7 +107,9 @@ else
         --title "NestJS Notion Databases" \
         "Clients Database ID[text]"="$clients_db_dev" \
         "Payments Database ID[text]"="$payments_db_dev" \
+
         "Calendar Database ID[text]"="$calendar_db_dev" \
+
         --tags "nestjs,notion,development"
 fi
 
@@ -119,9 +124,14 @@ stripe_key=$(op item get "NestJS Stripe API" --field "Secret Key" --reveal 2>/de
 webhook_secret=$(op item get "NestJS Stripe Webhook" --field "Webhook Secret" --reveal 2>/dev/null || echo "ERROR")
 clients_db=$(op item get "NestJS Notion Databases" --field "Clients Database ID" 2>/dev/null || echo "ERROR")
 payments_db=$(op item get "NestJS Notion Databases" --field "Payments Database ID" 2>/dev/null || echo "ERROR")
+
 calendar_db=$(op item get "NestJS Notion Databases" --field "Calendar Database ID" 2>/dev/null || echo "ERROR")
 
 if [[ $stripe_key == "ERROR" || $webhook_secret == "ERROR" || $clients_db == "ERROR" || $payments_db == "ERROR" || $calendar_db == "ERROR" ]]; then
+=======
+
+if [[ $stripe_key == "ERROR" || $webhook_secret == "ERROR" || $clients_db == "ERROR" || $payments_db == "ERROR" ]]; then
+
     echo "❌ Error en la verificación. Algunas credenciales no se pudieron leer."
     exit 1
 fi
