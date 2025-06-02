@@ -152,8 +152,8 @@ curl http://localhost:3002/health   # prod
 
 ### Railway (deployment)
 ```bash
-curl https://nestjs-stripe-notion-test.railway.app/health   # test
-curl https://nestjs-stripe-notion-prod.railway.app/health   # prod
+curl https://nestjs-stripe-notion-automation-test.up.railway.app/health   # test
+curl https://nestjs-stripe-notion-automation-prod.up.railway.app/health   # prod
 ```
 
 ## 🔒 Variables de Entorno
@@ -214,7 +214,7 @@ git merge develop
 git push origin test  # → Deploy Railway TEST
 
 # 3. Validar en TEST
-curl https://nestjs-stripe-notion-test.railway.app/health
+curl https://nestjs-stripe-notion-automation-test.up.railway.app/health
 
 # 4. Producción (solo si TEST pasa)
 git checkout main  
@@ -223,8 +223,8 @@ git push origin main  # → Deploy Railway PROD
 ```
 
 ### URLs Railway
-- **Test**: `https://nestjs-stripe-notion-test.railway.app`
-- **Production**: `https://nestjs-stripe-notion-prod.railway.app`
+- **Test**: `https://nestjs-stripe-notion-automation-test.up.railway.app`
+- **Production**: `https://nestjs-stripe-notion-automation-prod.up.railway.app`
 
 Ver guía completa: [README-RAILWAY.md](./README-RAILWAY.md)
 

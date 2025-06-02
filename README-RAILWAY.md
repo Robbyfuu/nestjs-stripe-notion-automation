@@ -131,8 +131,8 @@ curl https://nestjs-stripe-notion-prod.railway.app/health
 ## 📊 URLs de servicios
 
 - **🔧 Develop**: `http://localhost:3000` (local)
-- **🧪 Test**: `https://nestjs-stripe-notion-test.railway.app`
-- **🏭 Production**: `https://nestjs-stripe-notion-prod.railway.app`
+- **🧪 Test**: `https://nestjs-stripe-notion-automation-test.up.railway.app`
+- **🏭 Production**: `https://nestjs-stripe-notion-automation-prod.up.railway.app`
 
 ### Endpoints importantes:
 - `/health` - Health check
