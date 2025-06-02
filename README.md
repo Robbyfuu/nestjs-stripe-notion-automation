@@ -43,8 +43,14 @@ API de NestJS con integración completa de **Stripe**, **Notion** y **WhatsApp**
 ### 🔄 Flujo de trabajo
 
 ```
-develop (local) → test (deploy) → main (deploy)
+develop (local) → test (deploy & test) → main (prod)
 ```
+
+**Proceso seguro:**
+1. **Desarrollo**: Trabajar en `develop`
+2. **Testing**: Merge a `test` → Deploy automático Railway TEST
+3. **Validación**: Probar en ambiente TEST
+4. **Producción**: Merge `test` → `main` → Deploy automático Railway PROD
 
 ## 🛠️ Desarrollo Local
 
@@ -191,9 +197,30 @@ pnpm run railway:status
 ```
 
 ### CI/CD automático
-- **Push a `test`** → Deploy a Railway TEST
-- **Push a `main`** → Deploy a Railway PROD
-- **`develop`** → Solo desarrollo local
+- **Push a `develop`** → Solo desarrollo local
+- **Push a `test`** → Deploy automático a Railway TEST  
+- **Merge `test` → `main`** → Deploy automático a Railway PROD
+
+**Flujo recomendado:**
+```bash
+# 1. Desarrollo
+git checkout develop
+git add . && git commit -m "feat: nueva feature"
+git push origin develop
+
+# 2. Testing  
+git checkout test
+git merge develop
+git push origin test  # → Deploy Railway TEST
+
+# 3. Validar en TEST
+curl https://nestjs-stripe-notion-test.railway.app/health
+
+# 4. Producción (solo si TEST pasa)
+git checkout main  
+git merge test
+git push origin main  # → Deploy Railway PROD
+```
 
 ### URLs Railway
 - **Test**: `https://nestjs-stripe-notion-test.railway.app`
@@ -227,8 +254,8 @@ pnpm run railway:logs:test
 2. **Stripe**: Usa claves TEST en desarrollo, LIVE en producción
 3. **Notion**: Bases de datos separadas por entorno
 4. **Railway**: Deploy automático solo en `test` y `main`
+5. **Git Flow**: SIEMPRE merge a `main` desde `test` (nunca desde `develop`)
 
 ---
 
 ¡API lista para producción con Railway + CI/CD! 🎉
-

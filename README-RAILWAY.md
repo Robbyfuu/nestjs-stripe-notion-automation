@@ -153,45 +153,52 @@ curl https://nestjs-stripe-notion-prod.railway.app/health
 - Variables de entorno encriptadas en Railway
 - HTTPS automático en todas las URLs
 
-## 🔄 Workflow de desarrollo
+## 🔄 Flujo Git + Railway
 
-### 1. Desarrollo local (rama develop)
+### Arquitectura de 3 Entornos
+```
+develop (local) → test (Railway TEST) → main (Railway PROD)
+```
+
+### ✅ Flujo Seguro Recomendado
+
+#### 1. **Desarrollo** (rama `develop`)
 ```bash
 git checkout develop
-git pull origin develop
-
-# Trabajar en features
-pnpm run dev:local
-
-# Commit y push (sin deploy)
-git add .
-git commit -m "feat: nueva funcionalidad"
+# ... desarrollo local ...
+git add . && git commit -m "feat: nueva funcionalidad"
 git push origin develop
 ```
 
-### 2. Testing (rama test)
+#### 2. **Testing** (rama `test` → Railway TEST)
 ```bash
-# Merge develop → test para testing
 git checkout test
-git pull origin test
-git merge develop
-
-# Push dispara deploy automático a TEST
-git push origin test
-# → Deploy automático a https://nestjs-stripe-notion-test.railway.app
+git merge develop                    # Merge desde develop
+git push origin test                 # → 🚀 Deploy automático Railway TEST
 ```
 
-### 3. Production (rama main)
+#### 3. **Validación** 
 ```bash
-# Merge test → main para producción
-git checkout main
-git pull origin main
-git merge test
+# Probar en ambiente TEST
+curl https://nestjs-stripe-notion-test.railway.app/health
+curl https://nestjs-stripe-notion-test.railway.app/whatsapp/status
 
-# Push dispara deploy automático a PROD
-git push origin main
-# → Deploy automático a https://nestjs-stripe-notion-prod.railway.app
+# Validar webhooks, variables, etc.
 ```
+
+#### 4. **Producción** (rama `main` → Railway PROD)
+```bash
+# ⚠️ SOLO si TEST pasa todas las validaciones
+git checkout main
+git merge test                       # ✅ Merge desde TEST (no desde develop)
+git push origin main                 # → 🚀 Deploy automático Railway PROD
+```
+
+### 🚨 **Reglas importantes:**
+- ❌ **NUNCA** merge directo `develop` → `main`
+- ✅ **SIEMPRE** merge `develop` → `test` → `main`
+- ✅ **VALIDAR** en TEST antes de ir a PROD
+- ✅ **REVISAR** logs de Railway después de cada deploy
 
 ## 🐛 Troubleshooting
 
