@@ -24,6 +24,9 @@
     "setup:prod": "./scripts/setup-1password-prod.sh",
     "setup:notion": "./scripts/setup-notion-shared.sh",
     "setup:interactive": "./scripts/setup-1password-simple.sh",
+    "railway:upload": "./scripts/railway-api-uploader.sh",
+    "railway:auto": "./scripts/railway-auto-setup.sh",
+    "railway:debug": "./scripts/railway-debug.sh",
     "dev:local": "./scripts/dev-local.sh",
     "docker:dev": "./scripts/docker-with-1password.sh dev nestjs-dev",
     "docker:dev:build": "docker-compose build nestjs-dev && ./scripts/docker-with-1password.sh dev nestjs-dev",
@@ -35,11 +38,14 @@
     "docker:logs:dev": "docker-compose logs -f nestjs-dev",
     "docker:logs:test": "docker-compose logs -f nestjs-test",
     "docker:logs:prod": "docker-compose logs -f nestjs-prod",
-    "dev": "pnpm run docker:dev",
+    "dev": "pnpm run dev:local",
     "test:env": "pnpm run docker:test",
     "prod": "pnpm run docker:prod",
-    "dev:1password": "op run --env-file=1password.env -- pnpm run start:dev",
-    "prod:1password": "op run --env-file=1password.env -- pnpm run start:prod"
+    "railway:logs:test": "railway logs --service nestjs-stripe-notion-test",
+    "railway:logs:prod": "railway logs --service nestjs-stripe-notion-prod",
+    "railway:status": "railway status",
+    "railway:deploy:test": "railway deploy --service nestjs-stripe-notion-test",
+    "railway:deploy:prod": "railway deploy --service nestjs-stripe-notion-prod"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

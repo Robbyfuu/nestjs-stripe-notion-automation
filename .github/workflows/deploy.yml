@@ -1,0 +1,47 @@
+name: Deploy to Railway
+
+on:
+  push:
+    branches:
+      - main        # Production environment
+      - test        # Test environment
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 🛎️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🎯 Determine environment
+        id: env
+        run: |
+          if [[ ${{ github.ref }} == 'refs/heads/main' ]]; then
+            echo "environment=production" >> $GITHUB_OUTPUT
+            echo "service_name=nestjs-stripe-notion-prod" >> $GITHUB_OUTPUT
+            echo "display_name=🏭 PRODUCTION" >> $GITHUB_OUTPUT
+          elif [[ ${{ github.ref }} == 'refs/heads/test' ]]; then
+            echo "environment=test" >> $GITHUB_OUTPUT
+            echo "service_name=nestjs-stripe-notion-test" >> $GITHUB_OUTPUT
+            echo "display_name=🧪 TEST" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 🚀 Deploy to Railway (${{ steps.env.outputs.display_name }})
+        uses: railway-app/railway-github-action@v1
+        with:
+          railway_token: ${{ secrets.RAILWAY_TOKEN }}
+          service: ${{ steps.env.outputs.service_name }}
+          environment: ${{ steps.env.outputs.environment }}
+
+      - name: ✅ Deployment Status
+        run: |
+          echo "🎉 Successfully deployed to ${{ steps.env.outputs.display_name }}"
+          echo "🚂 Railway service: ${{ steps.env.outputs.service_name }}"
+          echo "🌐 Environment: ${{ steps.env.outputs.environment }}"
+          
+          if [[ "${{ steps.env.outputs.environment }}" == "test" ]]; then
+            echo "🔗 Test URL: https://nestjs-stripe-notion-test.railway.app"
+          elif [[ "${{ steps.env.outputs.environment }}" == "production" ]]; then
+            echo "🔗 Production URL: https://nestjs-stripe-notion-prod.railway.app"
+          fi 
