@@ -1,70 +1,67 @@
-# Dependencias y módulos
-node_modules
+# 🐳 Docker Ignore
+# ================
+
+# Dependencias
+node_modules/
 npm-debug.log*
 pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Archivos de desarrollo
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# Build output
+dist/
+build/
 
-# Archivos de build y temporales
-dist
-build
-.tmp
-*.tgz
-*.tar.gz
-coverage
+# Logs
+logs/
+*.log
 
-# Archivos de IDE y editores
-.vscode
-.idea
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# Environment variables
+.env*
+!.env.example
+
+# IDEs
+.vscode/
+.idea/
 *.swp
 *.swo
-*~
 
-# OS específicos
+# OS
 .DS_Store
 Thumbs.db
 
 # Git
-.git
+.git/
 .gitignore
 
 # Docker
 Dockerfile*
-docker-compose*.yml
+docker-compose*
 .dockerignore
 
-# Scripts de desarrollo
-scripts/dev-*
-scripts/test-*
-
-# Logs
-logs
-*.log
-
-# Tests
-test
-coverage
-jest.config.js
-.nyc_output
-
-# Documentación y README
-README.md
-docs/
-
-# Configuraciones CI/CD
-.github
+# CI/CD
+.github/
 .gitlab-ci.yml
-.travis.yml
 
-# Misc
-.prettierrc*
-.eslintrc*
-biome.json
-.biomeignore 
+# Documentation
+README.md
+*.md
+
+# Test files
+test/
+*.spec.ts
+*.test.ts
+
+# Development files
+.prettierrc
+.eslintrc.js
+biome.json 

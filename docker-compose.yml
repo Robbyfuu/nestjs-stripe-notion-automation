@@ -1,37 +1,60 @@
-version: '3.8'
+# 🐳 Docker Compose - NestJS Development with 1Password
+# Ambiente idéntico a producción para detectar problemas temprano
 
 services:
-  # Aplicación NestJS
-  nestjs-stripe:
+  # ================================
+  # Desarrollo Local con 1Password
+  # ================================
+  nestjs-dev:
     build:
       context: .
-      dockerfile: Dockerfile
-      target: production
-    container_name: nestjs-stripe-app
+      target: development
+      args:
+        - OP_SERVICE_ACCOUNT_TOKEN=${OP_SERVICE_ACCOUNT_TOKEN:-}
+        - RAILWAY_ENVIRONMENT=development
+    container_name: nestjs-stripe-dev
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "3000:3000"      # Aplicación
+      - "9229:9229"      # Debug port
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development
       - PORT=3000
-    env_file:
-      - .env
+      - OP_SERVICE_ACCOUNT_TOKEN=${OP_SERVICE_ACCOUNT_TOKEN:-}
+      - RAILWAY_ENVIRONMENT=development
     volumes:
-      # Solo logs para producción
+      # Hot reload: montar código fuente
+      - .:/app
+      - /app/node_modules
       - ./logs:/app/logs
-    depends_on:
-      - redis
     networks:
       - nestjs-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-
-
+    stdin_open: true
+    tty: true
 
 networks:
   nestjs-network:
-    driver: bridge 
+    driver: bridge
+
+# ================================
+# 🚀 Comandos útiles:
+# ================================
+# 
+# Desarrollo con hot reload:
+# docker-compose up
+#
+# Rebuild completo:
+# docker-compose up --build
+#
+# Solo build:
+# docker-compose build
+#
+# Logs en tiempo real:
+# docker-compose logs -f
+#
+# Ejecutar comandos:
+# docker-compose exec nestjs-dev pnpm run test
+# docker-compose exec nestjs-dev bash
+#
+# Limpiar todo:
+# docker-compose down --volumes --rmi all 

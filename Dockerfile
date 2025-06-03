@@ -1,71 +1,110 @@
-# Multi-stage build para optimizar el tamaño de la imagen final
-FROM node:20-alpine3.21 AS base
+# 🐳 Dockerfile para NestJS + Stripe + Notion + WhatsApp
+FROM node:20-alpine AS base
 
-# Actualizar paquetes del sistema para resolver vulnerabilidades
-RUN apk update && apk upgrade && apk add --no-cache dumb-init
-
-# Instalar pnpm globalmente
-RUN npm install -g pnpm
-
-# Crear directorio de trabajo
-WORKDIR /app
-
-# Copiar archivos de configuración de dependencias
-COPY package.json pnpm-lock.yaml ./
-
-# Stage para instalar dependencias
-FROM base AS deps
-RUN pnpm install --frozen-lockfile
-
-# Stage para build
-FROM base AS build
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-
-# Build de la aplicación
-RUN pnpm run build
-
-# Stage para producción
-FROM node:20-alpine3.21 AS production
-
-# Actualizar paquetes del sistema para resolver vulnerabilidades
-RUN apk update && apk upgrade && apk add --no-cache dumb-init curl
+# Instalar 1Password CLI y herramientas necesarias
+RUN apk add --no-cache \
+    curl \
+    bash \
+    && curl -sSfO https://cache.agilebits.com/dist/1P/op2/pkg/v2.26.0/op_linux_amd64_v2.26.0.zip \
+    && unzip op_linux_amd64_v2.26.0.zip \
+    && mv op /usr/local/bin/ \
+    && rm op_linux_amd64_v2.26.0.zip
 
 # Instalar pnpm
 RUN npm install -g pnpm
 
-# Crear usuario no-root para seguridad
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nestjs -u 1001
-
 WORKDIR /app
 
-# Copiar archivos de configuración
+# Copiar archivos de dependencias
 COPY package.json pnpm-lock.yaml ./
 
+# ================================
+# Desarrollo
+# ================================
+FROM base AS development
+
+# Instalar todas las dependencias (incluyendo devDependencies)
+RUN pnpm install --frozen-lockfile
+
+# Copiar código fuente
+COPY . .
+
+# Copiar archivos de configuración de 1Password
+COPY 1password-*.env ./
+
+# Copiar script de entrypoint
+COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Exponer puerto
+EXPOSE 3000
+
+# Usar entrypoint personalizado
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+
+# Comando por defecto para desarrollo
+CMD ["pnpm", "run", "start:dev"]
+
+# ================================
+# Build
+# ================================
+FROM base AS build
+
+# Instalar dependencias
+RUN pnpm install --frozen-lockfile
+
+# Copiar código fuente
+COPY . .
+
+# Copiar script de Railway 1Password build
+COPY scripts/railway-1password-build.sh ./scripts/
+RUN chmod +x ./scripts/railway-1password-build.sh
+
+# Build con integración 1Password
+# Si OP_SERVICE_ACCOUNT_TOKEN está disponible, usar 1Password
+# Si no, hacer build normal
+ARG OP_SERVICE_ACCOUNT_TOKEN
+ARG RAILWAY_ENVIRONMENT
+ENV OP_SERVICE_ACCOUNT_TOKEN=${OP_SERVICE_ACCOUNT_TOKEN}
+ENV RAILWAY_ENVIRONMENT=${RAILWAY_ENVIRONMENT}
+
+RUN if [ -n "$OP_SERVICE_ACCOUNT_TOKEN" ]; then \
+        echo "🔐 Building with 1Password integration..."; \
+        ./scripts/railway-1password-build.sh; \
+    else \
+        echo "🔨 Building without 1Password (no token provided)..."; \
+        pnpm run build; \
+    fi
+
+# ================================
+# Producción
+# ================================
+FROM base AS production
+
 # Instalar solo dependencias de producción
-RUN pnpm install --prod --frozen-lockfile && pnpm store prune
+RUN pnpm install --frozen-lockfile --prod
 
-# Copiar el build desde el stage anterior
-COPY --from=build --chown=nestjs:nodejs /app/dist ./dist
-COPY --from=build --chown=nestjs:nodejs /app/scripts ./scripts
+# Copiar build desde la etapa build
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/package.json ./
 
-# Cambiar al usuario no-root
+# Copiar archivos de configuración de 1Password
+COPY 1password-*.env ./
+
+# Copiar script de entrypoint
+COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Crear usuario no-root
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nestjs -u 1001
 USER nestjs
 
 # Exponer puerto
 EXPOSE 3000
 
-# Variables de entorno por defecto
-ENV NODE_ENV=production
-ENV PORT=3000
+# Usar entrypoint personalizado
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
-# Health check optimizado para Fly.io
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:3000/health || exit 1
-
-# Usar dumb-init para manejo correcto de señales
-ENTRYPOINT ["dumb-init", "--"]
-
-# Comando para ejecutar la aplicación
+# Comando para producción
 CMD ["node", "dist/main"] 
