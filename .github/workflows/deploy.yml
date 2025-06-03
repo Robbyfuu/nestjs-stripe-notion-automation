@@ -51,7 +51,7 @@ jobs:
           echo "Reading Project ID from 1Password..."
           PROJECT_ID=$(op read "op://Programing/Railway Deploy/Project ID")
           echo "Connecting to Railway project..."
-          railway link $PROJECT_ID
+          railway link --project $PROJECT_ID
         env:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
 
