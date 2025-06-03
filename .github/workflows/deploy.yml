@@ -14,16 +14,14 @@ jobs:
       - name: 🛎️ Checkout code
         uses: actions/checkout@v4
 
-      - name: 🎯 Determine environment and service
+      - name: 🎯 Determine environment
         id: env
         run: |
           if [[ ${{ github.ref }} == 'refs/heads/main' ]]; then
             echo "environment=production" >> $GITHUB_OUTPUT
-            echo "service_id=00f8b475-07df-4527-a780-01736f994edd" >> $GITHUB_OUTPUT
             echo "display_name=🏭 PRODUCTION" >> $GITHUB_OUTPUT
           elif [[ ${{ github.ref }} == 'refs/heads/test' ]]; then
             echo "environment=test" >> $GITHUB_OUTPUT
-            echo "service_id=466df4c3-48c1-4b14-adce-6c3a76c56314" >> $GITHUB_OUTPUT
             echo "display_name=🧪 TEST" >> $GITHUB_OUTPUT
           fi
 
@@ -40,21 +38,14 @@ jobs:
           curl -L https://railway.app/install.sh | sh
           echo "$HOME/.railway/bin" >> $GITHUB_PATH
 
-      - name: 📥 Install 1Password CLI
-        run: |
-          curl -sS https://downloads.1password.com/linux/keys/1password.asc | sudo gpg --dearmor --output /usr/share/keyrings/1password-archive-keyring.gpg
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/$(dpkg --print-architecture) stable main" | sudo tee /etc/apt/sources.list.d/1password.list
-          sudo apt update && sudo apt install -y 1password-cli
-
       - name: 🚀 Deploy to Railway (${{ steps.env.outputs.display_name }})
-        run: railway up --service=${{ steps.env.outputs.service_id }}
+        run: railway up --environment ${{ steps.env.outputs.environment }}
         env:
           RAILWAY_TOKEN: ${{ env.RAILWAY_TOKEN }}
 
       - name: ✅ Deployment Status
         run: |
           echo "🎉 Successfully deployed to ${{ steps.env.outputs.display_name }}"
-          echo "🚂 Railway service: ${{ steps.env.outputs.service_id }}"
           echo "🌐 Environment: ${{ steps.env.outputs.environment }}"
           
           if [[ "${{ steps.env.outputs.environment }}" == "test" ]]; then
