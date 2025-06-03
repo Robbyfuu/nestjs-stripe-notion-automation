@@ -11,9 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     container: ghcr.io/railwayapp/cli:latest
     
-    env:
-      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-    
     steps:
       - name: 🛎️ Checkout code
         uses: actions/checkout@v4
@@ -30,6 +27,14 @@ jobs:
             echo "service_id=466df4c3-48c1-4b14-adce-6c3a76c56314" >> $GITHUB_OUTPUT
             echo "display_name=🧪 TEST" >> $GITHUB_OUTPUT
           fi
+
+      - name: 🔐 Load Railway token from 1Password
+        uses: 1password/load-secrets-action@v1
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          RAILWAY_TOKEN: "op://Programing/Railway Deploy/Token"
 
       - name: 🚀 Deploy to Railway (${{ steps.env.outputs.display_name }})
         run: railway up --service=${{ steps.env.outputs.service_id }}
