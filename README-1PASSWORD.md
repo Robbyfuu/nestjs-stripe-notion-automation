@@ -31,7 +31,7 @@ source scripts/load-env-from-1password.sh test
 ### **Vault: `Programing`**
 
 #### **Items de Autenticación:**
-- `Railway Deploy` → `Token`
+- `Railway Deploy` → `Token`, `Project ID`
 
 #### **Items de Stripe:**
 - `NestJS Stripe API PROD` → `Secret Key`

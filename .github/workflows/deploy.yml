@@ -27,18 +27,24 @@ jobs:
             echo "display_name=🧪 TEST" >> $GITHUB_OUTPUT
           fi
 
-      - name: 🔐 Load Railway token from 1Password
+      - name: 🔐 Load Railway secrets from 1Password
         uses: 1password/load-secrets-action@v1
         with:
           export-env: true
         env:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
           RAILWAY_TOKEN: "op://Programing/Railway Deploy/Token"
+          RAILWAY_PROJECT_ID: "op://Programing/Railway Deploy/Project ID"
 
       - name: 🚂 Install Railway CLI
         run: |
           curl -L https://railway.app/install.sh | sh
           echo "$HOME/.railway/bin" >> $GITHUB_PATH
+
+      - name: 🔗 Connect Railway to project
+        run: |
+          echo "Connecting to Railway project: $RAILWAY_PROJECT_ID"
+          railway link $RAILWAY_PROJECT_ID
 
       - name: 🚀 Deploy to Railway (${{ steps.env.outputs.display_name }})
         run: railway up --service=${{ steps.env.outputs.service_id }}
