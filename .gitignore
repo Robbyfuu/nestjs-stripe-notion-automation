@@ -219,8 +219,8 @@ node_modules/
 # Railway .env files (contienen secretos)
 railway-*.env
 
-# Railway config (contiene IDs de proyecto)
-railway.toml
+# Railway config (necesario para GitHub Actions)
+# railway.toml
 
 # Build output
 dist/

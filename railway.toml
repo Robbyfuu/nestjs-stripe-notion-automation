@@ -1,0 +1,10 @@
+[project]
+id = "17d7d311-9966-437e-9a1f-6e286c1ec806"
+
+[environments.production]
+name = "production"
+service_id = "00f8b475-07df-4527-a780-01736f994edd"
+
+[environments.test]
+name = "test"  
+service_id = "466df4c3-48c1-4b14-adce-6c3a76c56314" 
