@@ -1,4 +1,4 @@
-name: Deploy to Railway
+name: CI/CD Pipeline
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
       - test        # Test environment
 
 jobs:
-  deploy:
+  validate:
     runs-on: ubuntu-latest
     
     steps:
@@ -25,44 +25,22 @@ jobs:
             echo "display_name=🧪 TEST" >> $GITHUB_OUTPUT
           fi
 
-      - name: 🔐 Load Railway token from 1Password
-        uses: 1password/load-secrets-action@v1
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          export-env: true
-        env:
-          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-          RAILWAY_TOKEN: "op://Programing/Railway Deploy/Token"
+          node-version: '18'
+          cache: 'npm'
 
-      - name: 🚂 Install Railway CLI
+      - name: 🔧 Install dependencies
+        run: npm ci
+
+      - name: 🧪 Run tests
+        run: npm run test
+
+      - name: 🔍 Run linting
+        run: npm run lint
+
+      - name: ✅ Validation Status
         run: |
-          curl -L https://railway.app/install.sh | sh
-          echo "$HOME/.railway/bin" >> $GITHUB_PATH
-
-      - name: 🔐 Authenticate with Railway
-        run: |
-          echo "Verifying Railway token..."
-          if [ -z "$RAILWAY_TOKEN" ]; then
-            echo "❌ RAILWAY_TOKEN is empty!"
-            exit 1
-          fi
-          echo "✅ RAILWAY_TOKEN is present"
-          echo "Authenticating with Railway..."
-          echo $RAILWAY_TOKEN | railway login
-        env:
-          RAILWAY_TOKEN: ${{ env.RAILWAY_TOKEN }}
-
-      - name: 🚀 Deploy to Railway (${{ steps.env.outputs.display_name }})
-        run: railway up --environment ${{ steps.env.outputs.environment }}
-        env:
-          RAILWAY_TOKEN: ${{ env.RAILWAY_TOKEN }}
-
-      - name: ✅ Deployment Status
-        run: |
-          echo "🎉 Successfully deployed to ${{ steps.env.outputs.display_name }}"
-          echo "🌐 Environment: ${{ steps.env.outputs.environment }}"
-          
-          if [[ "${{ steps.env.outputs.environment }}" == "test" ]]; then
-            echo "🔗 Test URL: https://nestjs-stripe-notion-automation-test.up.railway.app"
-          elif [[ "${{ steps.env.outputs.environment }}" == "production" ]]; then
-            echo "🔗 Production URL: https://nestjs-stripe-notion-automation-prod.up.railway.app"
-          fi 
+          echo "🎉 All validations passed for ${{ steps.env.outputs.display_name }}"
+          echo "🚂 Railway will now auto-deploy to ${{ steps.env.outputs.environment }}" 
