@@ -38,6 +38,19 @@ jobs:
           curl -L https://railway.app/install.sh | sh
           echo "$HOME/.railway/bin" >> $GITHUB_PATH
 
+      - name: 🔐 Authenticate with Railway
+        run: |
+          echo "Verifying Railway token..."
+          if [ -z "$RAILWAY_TOKEN" ]; then
+            echo "❌ RAILWAY_TOKEN is empty!"
+            exit 1
+          fi
+          echo "✅ RAILWAY_TOKEN is present"
+          echo "Authenticating with Railway..."
+          echo $RAILWAY_TOKEN | railway login
+        env:
+          RAILWAY_TOKEN: ${{ env.RAILWAY_TOKEN }}
+
       - name: 🚀 Deploy to Railway (${{ steps.env.outputs.display_name }})
         run: railway up --environment ${{ steps.env.outputs.environment }}
         env:
