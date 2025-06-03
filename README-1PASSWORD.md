@@ -19,12 +19,33 @@ source scripts/load-env-from-1password.sh production
 npm run start:dev
 ```
 
+### **Railway Autodeploys (Automático)**
+```bash
+# Railway ejecuta automáticamente:
+npm run build:railway
+
+# El script instala 1Password CLI y carga variables según RAILWAY_ENVIRONMENT
+```
+
 ### **Scripts de Mantenimiento**
 ```bash
 # Debug de Railway con variables cargadas
 source scripts/load-env-from-1password.sh test
 ./scripts/railway-debug.sh
 ```
+
+## 🚂 **Configuración Railway + 1Password**
+
+### **En Railway Dashboard:**
+```
+1. Service Settings → Variables
+2. Añadir: OP_SERVICE_ACCOUNT_TOKEN = [tu_service_account_token]
+3. Railway autodeploys cargará automáticamente variables desde 1Password
+```
+
+### **Variables automáticas por ambiente:**
+- **test branch** → Variables TEST de 1Password
+- **main branch** → Variables PROD de 1Password
 
 ## 🏗️ Estructura en 1Password
 
@@ -82,7 +103,7 @@ op read "op://Programing/Railway Deploy/Token"
 ### ✅ **Simplicidad**
 - ❌ No más archivos `.env` que mantener
 - ✅ Un solo script para cargar todo
-- ✅ Mismo proceso en desarrollo y CI/CD
+- ✅ Mismo proceso en desarrollo, CI/CD y Railway
 
 ### ✅ **Mantenibilidad**
 - ✅ Cambios de secrets solo en 1Password
@@ -112,8 +133,15 @@ op signin
 op item list --vault Programing
 ```
 
+### **Railway: Variables no cargadas**
+```bash
+# Verificar OP_SERVICE_ACCOUNT_TOKEN en Railway Dashboard
+# Service Settings → Variables → OP_SERVICE_ACCOUNT_TOKEN
+```
+
 ## 📚 Referencias
 
 - [1Password CLI Documentation](https://developer.1password.com/docs/cli/)
 - [1Password GitHub Actions](https://developer.1password.com/docs/ci-cd/github-actions/)
-- [Secret References](https://developer.1password.com/docs/cli/secret-references/) 
+- [Secret References](https://developer.1password.com/docs/cli/secret-references/)
+- [Railway Autodeploys](https://docs.railway.com/guides/github-autodeploys) 

@@ -7,6 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
+    "build:railway": "bash scripts/railway-1password-build.sh",
     "format": "biome format --write .",
     "format:check": "biome format .",
     "lint": "biome lint .",
