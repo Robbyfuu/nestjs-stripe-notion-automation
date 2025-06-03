@@ -46,18 +46,10 @@ jobs:
           echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/$(dpkg --print-architecture) stable main" | sudo tee /etc/apt/sources.list.d/1password.list
           sudo apt update && sudo apt install -y 1password-cli
 
-      - name: 🔗 Connect Railway to project
-        run: |
-          echo "Reading Project ID from 1Password..."
-          PROJECT_ID=$(op read "op://Programing/Railway Deploy/Project ID")
-          echo "Connecting to Railway project..."
-          railway link --project $PROJECT_ID
-        env:
-          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-          RAILWAY_TOKEN: ${{ env.RAILWAY_TOKEN }}
-
       - name: 🚀 Deploy to Railway (${{ steps.env.outputs.display_name }})
         run: railway up --service=${{ steps.env.outputs.service_id }}
+        env:
+          RAILWAY_TOKEN: ${{ env.RAILWAY_TOKEN }}
 
       - name: ✅ Deployment Status
         run: |
