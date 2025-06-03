@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # 🚂 Railway Build with 1Password Integration
-# Instala 1Password CLI, carga variables de entorno y hace build
+# Carga variables de entorno desde 1Password y hace build
+# Compatible con Alpine Linux (Docker)
 
 set -e
 
@@ -29,21 +30,21 @@ if [[ -z "$OP_SERVICE_ACCOUNT_TOKEN" ]]; then
     print_log $RED "❌ OP_SERVICE_ACCOUNT_TOKEN no configurado en Railway"
     print_log $YELLOW "💡 Configura esta variable en Railway Dashboard para usar 1Password"
     print_log $YELLOW "🔄 Continuando con build normal sin variables de 1Password..."
-    npm run build
+    pnpm run build
     exit 0
 fi
 
-print_log $BLUE "🔐 OP_SERVICE_ACCOUNT_TOKEN encontrado, instalando 1Password CLI..."
+print_log $BLUE "🔐 OP_SERVICE_ACCOUNT_TOKEN encontrado"
 
-# Instalar 1Password CLI
-curl -sS https://downloads.1password.com/linux/keys/1password.asc | gpg --dearmor --output /tmp/1password-archive-keyring.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/tmp/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/$(dpkg --print-architecture) stable main" | tee /tmp/1password.list
-cp /tmp/1password.list /etc/apt/sources.list.d/1password.list
-cp /tmp/1password-archive-keyring.gpg /usr/share/keyrings/1password-archive-keyring.gpg
+# Verificar si 1Password CLI ya está instalado (debería estar desde Dockerfile)
+if ! command -v op &> /dev/null; then
+    print_log $RED "❌ 1Password CLI no encontrado en container"
+    print_log $YELLOW "🔄 Continuando con build normal..."
+    pnpm run build
+    exit 0
+fi
 
-apt update && apt install -y 1password-cli
-
-print_log $GREEN "✅ 1Password CLI instalado"
+print_log $GREEN "✅ 1Password CLI disponible"
 
 # Función para cargar una variable de 1Password
 load_env_var() {
@@ -99,7 +100,7 @@ print_log $GREEN "✅ Variables de entorno cargadas desde 1Password"
 print_log $BLUE "🔨 Iniciando build de NestJS..."
 
 # Hacer el build
-npm run build
+pnpm run build
 
 print_log $GREEN "🎉 Build completado con variables de 1Password!"
 print_log $YELLOW "💡 Variables cargadas para ambiente: $ENVIRONMENT" 

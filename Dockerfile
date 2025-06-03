@@ -56,8 +56,25 @@ RUN pnpm install --frozen-lockfile
 # Copiar código fuente
 COPY . .
 
-# Build de la aplicación
-RUN pnpm run build
+# Copiar script de Railway 1Password build
+COPY scripts/railway-1password-build.sh ./scripts/
+RUN chmod +x ./scripts/railway-1password-build.sh
+
+# Build con integración 1Password
+# Si OP_SERVICE_ACCOUNT_TOKEN está disponible, usar 1Password
+# Si no, hacer build normal
+ARG OP_SERVICE_ACCOUNT_TOKEN
+ARG RAILWAY_ENVIRONMENT
+ENV OP_SERVICE_ACCOUNT_TOKEN=${OP_SERVICE_ACCOUNT_TOKEN}
+ENV RAILWAY_ENVIRONMENT=${RAILWAY_ENVIRONMENT}
+
+RUN if [ -n "$OP_SERVICE_ACCOUNT_TOKEN" ]; then \
+        echo "🔐 Building with 1Password integration..."; \
+        ./scripts/railway-1password-build.sh; \
+    else \
+        echo "🔨 Building without 1Password (no token provided)..."; \
+        pnpm run build; \
+    fi
 
 # ================================
 # Producción
