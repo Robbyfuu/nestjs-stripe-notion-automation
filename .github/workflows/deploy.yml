@@ -34,7 +34,7 @@ jobs:
         env:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
           RAILWAY_TOKEN: "op://Programing/Railway Deploy/Token"
-          RAILWAY_PROJECT_ID: "op://Programing/Railway Deploy/Project ID"
+          PROJECT_UUID: "op://Programing/Railway Deploy/Project ID"
 
       - name: 🚂 Install Railway CLI
         run: |
@@ -44,7 +44,7 @@ jobs:
       - name: 🔗 Connect Railway to project
         run: |
           echo "Connecting to Railway project..."
-          railway link $RAILWAY_PROJECT_ID
+          railway link $PROJECT_UUID
 
       - name: 🚀 Deploy to Railway (${{ steps.env.outputs.display_name }})
         run: railway up --service=${{ steps.env.outputs.service_id }}

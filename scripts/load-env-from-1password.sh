@@ -35,7 +35,7 @@ load_env_var() {
 
 # === RAILWAY DEPLOYMENT ===
 load_env_var "RAILWAY_TOKEN" "op://Programing/Railway Deploy/Token"
-load_env_var "RAILWAY_PROJECT_ID" "op://Programing/Railway Deploy/Project ID"
+load_env_var "PROJECT_UUID" "op://Programing/Railway Deploy/Project ID"
 
 # === STRIPE ===
 if [[ "$ENVIRONMENT" == "production" ]]; then
