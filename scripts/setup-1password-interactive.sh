@@ -266,66 +266,60 @@ show_status() {
     print_color $CYAN "Estado actual de las variables:"
     echo ""
     
-    print_color $PURPLE "💳 Stripe Webhooks (Específicos por ambiente)"
-    print_color $PURPLE "============================================="
-    echo "   1. $(check_var_status "NestJS Stripe Webhook DEV" "Webhook Secret") Webhook DEV (Local)"
-    echo "   2. $(check_var_status "NestJS Stripe Webhook TEST" "Webhook Secret") Webhook TEST (Fly.io)"
-    echo "   3. $(check_var_status "NestJS Stripe Webhook PROD" "Webhook Secret") Webhook PROD (Fly.io)"
+    print_color $PURPLE "💳 Stripe API Keys"
+    print_color $PURPLE "=================="
+    echo "   1. $(check_var_status "NestJS Stripe API TEST" "Secret Key") Secret Key TEST (DEV + TEST)"
+    echo "   2. $(check_var_status "NestJS Stripe API PROD" "Secret Key") Secret Key PROD"
     echo ""
     
-    print_color $PURPLE "🔑 Stripe API Keys"
-    print_color $PURPLE "=================="
-    echo "   4. $(check_var_status "NestJS Stripe API TEST" "Secret Key") Secret Key TEST (DEV + TEST)"
-    echo "   5. $(check_var_status "NestJS Stripe API PROD" "Secret Key") Secret Key PROD"
+    print_color $PURPLE "🔗 Stripe Webhooks"
+    print_color $PURPLE "==================="
+    echo "   3. $(check_var_status "NestJS Stripe Webhook TEST" "Webhook Secret") Webhook TEST"
+    echo "   4. $(check_var_status "NestJS Stripe Webhook PROD" "Webhook Secret") Webhook PROD"
     echo ""
     
     print_color $PURPLE "📚 Notion Integration (Compartida)"
     print_color $PURPLE "=================================="
-    echo "   6. $(check_var_status "NestJS Notion Integration" "Integration Secret") Integration Secret"
+    echo "   5. $(check_var_status "NestJS Notion Integration" "Secret") Integration Secret"
     echo ""
     
     print_color $PURPLE "🗄️ Notion Databases"
     print_color $PURPLE "===================="
-    echo "   7. $(check_var_status "NestJS Notion Databases DEV" "Clients Database ID") Clients DB (DEV + TEST)"
-    echo "   8. $(check_var_status "NestJS Notion Databases DEV" "Payments Database ID") Payments DB (DEV + TEST)"
-    echo "   9. $(check_var_status "NestJS Notion Databases DEV" "Calendar Database ID") Calendar DB (DEV + TEST)"
-    echo "   10. $(check_var_status "NestJS Notion Databases PROD" "Clients Database ID") Clients DB (PROD)"
-    echo "   11. $(check_var_status "NestJS Notion Databases PROD" "Payments Database ID") Payments DB (PROD)"
-    echo "   12. $(check_var_status "NestJS Notion Databases PROD" "Calendar Database ID") Calendar DB (PROD)"
+    echo "   6. $(check_var_status "NestJS Notion Databases TEST" "Clients Database ID") Clients DB (TEST)"
+    echo "   7. $(check_var_status "NestJS Notion Databases TEST" "Payments Database ID") Payments DB (TEST)"
+    echo "   8. $(check_var_status "NestJS Notion Databases TEST" "Calendar Database ID") Calendar DB (TEST)"
+    echo "   9. $(check_var_status "NestJS Notion Databases PROD" "Clients Database ID") Clients DB (PROD)"
+    echo "   10. $(check_var_status "NestJS Notion Databases PROD" "Payments Database ID") Payments DB (PROD)"
+    echo "   11. $(check_var_status "NestJS Notion Databases PROD" "Calendar Database ID") Calendar DB (PROD)"
     echo ""
     
     print_color $PURPLE "📱 WhatsApp Configuration (Compartida)"
     print_color $PURPLE "======================================"
-    echo "   13. $(check_var_status "NestJS WhatsApp Twilio" "Account SID") Twilio Account SID"
-    echo "   14. $(check_var_status "NestJS WhatsApp Twilio" "Auth Token") Twilio Auth Token"
-    echo "   15. $(check_var_status "NestJS WhatsApp Twilio" "WhatsApp From") Twilio WhatsApp From"
-    echo "   16. $(check_var_status "NestJS WhatsApp Meta" "Use Meta API") Use Meta API (true/false)"
-    echo "   17. $(check_var_status "NestJS WhatsApp Meta" "Access Token") Meta Access Token"
-    echo "   18. $(check_var_status "NestJS WhatsApp Meta" "Phone Number ID") Meta Phone Number ID"
+    echo "   12. $(check_var_status "NestJS WhatsApp Twilio" "Account SID") Twilio Account SID"
+    echo "   13. $(check_var_status "NestJS WhatsApp Twilio" "Auth Token") Twilio Auth Token"
+    echo "   14. $(check_var_status "NestJS WhatsApp Twilio" "WhatsApp From") Twilio WhatsApp From"
+    echo "   15. $(check_var_status "NestJS WhatsApp Meta" "Use Meta API") Use Meta API (true/false)"
 }
 
 # Función para obtener nombre descriptivo de variable
 get_var_name() {
     local var_num=$1
     case $var_num in
-        1) echo "Stripe Webhook DEV (Local)" ;;
-        2) echo "Stripe Webhook TEST (Fly.io)" ;;
-        3) echo "Stripe Webhook PROD (Fly.io)" ;;
-        4) echo "Stripe Secret Key TEST (DEV + TEST)" ;;
-        5) echo "Stripe Secret Key PROD" ;;
-        6) echo "Notion Integration Secret" ;;
-        7) echo "Base de Datos de Clientes (DEV + TEST)" ;;
-        8) echo "Base de Datos de Pagos (DEV + TEST)" ;;
-        9) echo "Base de Datos de Calendario (DEV + TEST)" ;;
-        10) echo "Base de Datos de Clientes (PROD)" ;;
-        11) echo "Base de Datos de Pagos (PROD)" ;;
-        12) echo "Base de Datos de Calendario (PROD)" ;;
-        13) echo "Twilio Account SID" ;;
-        14) echo "Twilio Auth Token" ;;
-        15) echo "Twilio WhatsApp From Number" ;;
-        16) echo "Usar Meta WhatsApp API (true/false)" ;;
-        17) echo "Meta WhatsApp Access Token" ;;
-        18) echo "Meta WhatsApp Phone Number ID" ;;
+        1) echo "Stripe Secret Key TEST (DEV + TEST)" ;;
+        2) echo "Stripe Secret Key PROD" ;;
+        3) echo "Stripe Webhook TEST" ;;
+        4) echo "Stripe Webhook PROD" ;;
+        5) echo "Notion Integration Secret" ;;
+        6) echo "Base de Datos de Clientes (TEST)" ;;
+        7) echo "Base de Datos de Pagos (TEST)" ;;
+        8) echo "Base de Datos de Calendario (TEST)" ;;
+        9) echo "Base de Datos de Clientes (PROD)" ;;
+        10) echo "Base de Datos de Pagos (PROD)" ;;
+        11) echo "Base de Datos de Calendario (PROD)" ;;
+        12) echo "Twilio Account SID" ;;
+        13) echo "Twilio Auth Token" ;;
+        14) echo "Twilio WhatsApp From Number" ;;
+        15) echo "Usar Meta WhatsApp API (true/false)" ;;
         *) echo "Variable desconocida" ;;
     esac
 }
@@ -340,96 +334,90 @@ manage_variable() {
     
     case $var_num in
         1)
-            item_title="NestJS Stripe Webhook DEV"
-            field_name="Webhook Secret"
-            prefix="whsec_"
-            field_type="secret"
-            ;;
-        2)
-            item_title="NestJS Stripe Webhook TEST"
-            field_name="Webhook Secret"
-            prefix="whsec_"
-            field_type="secret"
-            ;;
-        3)
-            item_title="NestJS Stripe Webhook PROD"
-            field_name="Webhook Secret"
-            prefix="whsec_"
-            field_type="secret"
-            ;;
-        4)
             item_title="NestJS Stripe API TEST"
             field_name="Secret Key"
             prefix="sk_test_"
             field_type="secret"
             ;;
-        5)
+        2)
             item_title="NestJS Stripe API PROD"
             field_name="Secret Key"
             prefix="sk_live_"
             field_type="secret"
             ;;
-        6)
-            item_title="NestJS Notion Integration"
-            field_name="Integration Secret"
-            prefix="ntn_"
+        3)
+            item_title="NestJS Stripe Webhook TEST"
+            field_name="Webhook Secret"
+            prefix="whsec_"
             field_type="secret"
             ;;
-        7)
-            item_title="NestJS Notion Databases DEV"
+        4)
+            item_title="NestJS Stripe Webhook PROD"
+            field_name="Webhook Secret"
+            prefix="whsec_"
+            field_type="secret"
+            ;;
+        5)
+            item_title="NestJS Notion Integration"
+            field_name="Secret"
+            prefix="secret_"
+            field_type="secret"
+            ;;
+        6)
+            item_title="NestJS Notion Databases TEST"
             field_name="Clients Database ID"
             prefix=""
             field_type="database_id"
             ;;
-        8)
-            item_title="NestJS Notion Databases DEV"
+        7)
+            item_title="NestJS Notion Databases TEST"
             field_name="Payments Database ID"
             prefix=""
             field_type="database_id"
             ;;
-        9)
-            item_title="NestJS Notion Databases DEV"
+        8)
+            item_title="NestJS Notion Databases TEST"
             field_name="Calendar Database ID"
+            prefix=""
+            field_type="database_id"
+            ;;
+        9)
+            item_title="NestJS Notion Databases PROD"
+            field_name="Clients Database ID"
             prefix=""
             field_type="database_id"
             ;;
         10)
             item_title="NestJS Notion Databases PROD"
-            field_name="Clients Database ID"
+            field_name="Payments Database ID"
             prefix=""
             field_type="database_id"
             ;;
         11)
             item_title="NestJS Notion Databases PROD"
-            field_name="Payments Database ID"
-            prefix=""
-            field_type="database_id"
-            ;;
-        12)
-            item_title="NestJS Notion Databases PROD"
             field_name="Calendar Database ID"
             prefix=""
             field_type="database_id"
             ;;
-        13)
+        12)
             item_title="NestJS WhatsApp Twilio"
             field_name="Account SID"
             prefix="AC"
             field_type="secret"
             ;;
-        14)
+        13)
             item_title="NestJS WhatsApp Twilio"
             field_name="Auth Token"
             prefix=""
             field_type="secret"
             ;;
-        15)
+        14)
             item_title="NestJS WhatsApp Twilio"
             field_name="WhatsApp From"
-            prefix="+1415"
+            prefix="whatsapp:+1415"
             field_type="text"
             ;;
-        16)
+        15)
             item_title="NestJS WhatsApp Meta"
             field_name="Use Meta API"
             prefix=""
@@ -453,18 +441,6 @@ manage_variable() {
             fi
             return
             ;;
-        17)
-            item_title="NestJS WhatsApp Meta"
-            field_name="Access Token"
-            prefix=""
-            field_type="secret"
-            ;;
-        18)
-            item_title="NestJS WhatsApp Meta"
-            field_name="Phone Number ID"
-            prefix=""
-            field_type="text"
-            ;;
         *)
             print_color $RED "❌ Número de variable no válido"
             return 1
@@ -487,24 +463,21 @@ show_values() {
     echo ""
     
     local vars=(
-        "1:NestJS Stripe Webhook DEV:Webhook Secret"
-        "2:NestJS Stripe Webhook TEST:Webhook Secret"
-        "3:NestJS Stripe Webhook PROD:Webhook Secret"
-        "4:NestJS Stripe API TEST:Secret Key"
-        "5:NestJS Stripe API PROD:Secret Key"
-        "6:NestJS Notion Integration:Integration Secret"
-        "7:NestJS Notion Databases DEV:Clients Database ID"
-        "8:NestJS Notion Databases DEV:Payments Database ID"
-        "9:NestJS Notion Databases DEV:Calendar Database ID"
-        "10:NestJS Notion Databases PROD:Clients Database ID"
-        "11:NestJS Notion Databases PROD:Payments Database ID"
-        "12:NestJS Notion Databases PROD:Calendar Database ID"
-        "13:NestJS WhatsApp Twilio:Account SID"
-        "14:NestJS WhatsApp Twilio:Auth Token"
-        "15:NestJS WhatsApp Twilio:WhatsApp From"
-        "16:NestJS WhatsApp Meta:Use Meta API"
-        "17:NestJS WhatsApp Meta:Access Token"
-        "18:NestJS WhatsApp Meta:Phone Number ID"
+        "1:NestJS Stripe API TEST:Secret Key"
+        "2:NestJS Stripe API PROD:Secret Key"
+        "3:NestJS Stripe Webhook TEST:Webhook Secret"
+        "4:NestJS Stripe Webhook PROD:Webhook Secret"
+        "5:NestJS Notion Integration:Secret"
+        "6:NestJS Notion Databases TEST:Clients Database ID"
+        "7:NestJS Notion Databases TEST:Payments Database ID"
+        "8:NestJS Notion Databases TEST:Calendar Database ID"
+        "9:NestJS Notion Databases PROD:Clients Database ID"
+        "10:NestJS Notion Databases PROD:Payments Database ID"
+        "11:NestJS Notion Databases PROD:Calendar Database ID"
+        "12:NestJS WhatsApp Twilio:Account SID"
+        "13:NestJS WhatsApp Twilio:Auth Token"
+        "14:NestJS WhatsApp Twilio:WhatsApp From"
+        "15:NestJS WhatsApp Meta:Use Meta API"
     )
     
     for var_info in "${vars[@]}"; do
@@ -542,9 +515,9 @@ main_menu() {
         show_status
         echo ""
         print_color $CYAN "Opciones:"
-        print_color $WHITE "   1-18. Configurar/Modificar variable específica"
+        print_color $WHITE "   1-15. Configurar/Modificar variable específica"
         print_color $WHITE "   v. Ver valores actuales"
-        print_color $WHITE "   c. Configuración rápida (desarrollo)"
+        print_color $WHITE "   c. Configuración rápida (desarrollo/test)"
         print_color $WHITE "   p. Configuración rápida (producción)"
         print_color $WHITE "   w. Configuración rápida (WhatsApp)"
         print_color $WHITE "   q. Salir"
@@ -553,16 +526,16 @@ main_menu() {
         read choice < /dev/tty
         
         case $choice in
-            1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18)
+            1|2|3|4|5|6|7|8|9|10|11|12|13|14|15)
                 manage_variable "$choice"
                 ;;
             "v"|"V")
                 show_values
                 ;;
             "c"|"C")
-                print_color $YELLOW "🚀 Configuración rápida para desarrollo..."
+                print_color $YELLOW "🚀 Configuración rápida para desarrollo/test..."
                 
-                for var_num in 1 4 6 7 8; do
+                for var_num in 1 3 5 6 7 8; do
                     local var_name=$(get_var_name "$var_num")
                     print_color $BLUE "\n📝 Configurando: $var_name"
                     manage_variable "$var_num"
@@ -574,7 +547,7 @@ main_menu() {
                 echo -n "¿Continuar? (yes/no): "
                 read confirm < /dev/tty
                 if [[ $confirm == "yes" ]]; then
-                    for var_num in 5 10 11; do
+                    for var_num in 2 4 9 10 11; do
                         local var_name=$(get_var_name "$var_num")
                         print_color $BLUE "\n📝 Configurando: $var_name"
                         manage_variable "$var_num"
@@ -583,44 +556,11 @@ main_menu() {
                 ;;
             "w"|"W")
                 print_color $YELLOW "📱 Configuración rápida para WhatsApp..."
-                print_color $BLUE "\nElige tu proveedor de WhatsApp:"
-                print_color $WHITE "   1. Twilio (recomendado para empezar)"
-                print_color $WHITE "   2. Meta WhatsApp Business API (más funcionalidades)"
-                print_color $WHITE "   3. Configurar ambos"
-                echo -n "Opción (1/2/3): "
-                read whatsapp_choice < /dev/tty
-                
-                case $whatsapp_choice in
-                    1)
-                        print_color $BLUE "\n🔧 Configurando Twilio..."
-                        for var_num in 13 14; do
-                            local var_name=$(get_var_name "$var_num")
-                            print_color $BLUE "\n📝 Configurando: $var_name"
-                            manage_variable "$var_num"
-                        done
-                        # Configurar Meta API como false
-                        create_or_update_var "NestJS WhatsApp Meta" "Use Meta API" "false" "boolean"
-                        ;;
-                    2)
-                        print_color $BLUE "\n🔧 Configurando Meta WhatsApp Business API..."
-                        for var_num in 16 17; do
-                            local var_name=$(get_var_name "$var_num")
-                            print_color $BLUE "\n📝 Configurando: $var_name"
-                            manage_variable "$var_num"
-                        done
-                        ;;
-                    3)
-                        print_color $BLUE "\n🔧 Configurando ambos proveedores..."
-                        for var_num in 13 14 16 17; do
-                            local var_name=$(get_var_name "$var_num")
-                            print_color $BLUE "\n📝 Configurando: $var_name"
-                            manage_variable "$var_num"
-                        done
-                        ;;
-                    *)
-                        print_color $RED "❌ Opción no válida"
-                        ;;
-                esac
+                for var_num in 12 13 14 15; do
+                    local var_name=$(get_var_name "$var_num")
+                    print_color $BLUE "\n📝 Configurando: $var_name"
+                    manage_variable "$var_num"
+                done
                 ;;
             "q"|"Q")
                 print_color $GREEN "👋 ¡Hasta luego!"

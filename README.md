@@ -1,261 +1,142 @@
-# 🌐 NestJS + Stripe + Notion + WhatsApp
+# 🚀 NestJS + Stripe + Notion + WhatsApp Integration
 
-API de NestJS con integración completa de **Stripe**, **Notion** y **WhatsApp** usando Twilio. Incluye webhooks de Stripe que automáticamente crean clientes en Notion y envían notificaciones por WhatsApp.
+Sistema automatizado de procesamiento de pagos con integración completa de Stripe, Notion y WhatsApp, construido con NestJS y desplegado en Railway.
 
-## 🚀 Stack Tecnológico
+## ⚡ Inicio Rápido
 
-- **Backend**: NestJS + TypeScript
-- **Pagos**: Stripe (webhooks)
-- **Base de Datos**: Notion (como DB)
-- **Comunicación**: WhatsApp (Twilio)
-- **Seguridad**: 1Password para secretos
-- **Deployment**: Railway + GitHub Actions
-- **Containerización**: Docker multi-entorno
+### **Desarrollo Local (Nativo)**
+```bash
+# 1. Configurar variables desde 1Password
+export OP_SERVICE_ACCOUNT_TOKEN=ops_...
 
-## 📱 Funcionalidades
+# 2. Iniciar desarrollo
+pnpm run dev
+```
 
-### 🔗 Integración WhatsApp
-- ✅ Envío de mensajes por Twilio
-- ✅ Sandbox verificado (+14155238886)
-- ✅ Tu número verificado: `+56996419674`
-- ✅ Endpoints REST para envío
+### **Desarrollo Local (Docker)**
+```bash
+# 1. Configurar variables desde 1Password  
+export OP_SERVICE_ACCOUNT_TOKEN=ops_...
 
-### 💳 Webhooks de Stripe
-- ✅ Escucha `payment_intent.succeeded`
-- ✅ Crea clientes automáticamente en Notion
-- ✅ Envía notificación por WhatsApp
-- ✅ Diferentes entornos (TEST/PROD)
+# 2. Iniciar con Docker (ambiente idéntico a producción)
+pnpm run dev:docker
+```
 
-### 📊 Base de Datos Notion
-- ✅ **Clientes**: Información de clientes
-- ✅ **Pagos**: Registro de transacciones
-- ✅ **Calendario**: Eventos y citas
-- ✅ Diferentes bases por entorno
+## 🛠️ Comandos Principales
+
+### **Desarrollo Nativo**
+```bash
+pnpm run dev              # Desarrollo con hot reload
+pnpm run build            # Build para producción
+pnpm run start:prod       # Ejecutar build en producción
+pnpm run test             # Ejecutar tests
+```
+
+### **Desarrollo Docker**
+```bash
+pnpm run dev:docker       # Iniciar container desarrollo
+pnpm run dev:docker:logs  # Ver logs en tiempo real
+pnpm run dev:docker:shell # Abrir shell en container
+pnpm run dev:docker:test  # Ejecutar tests en container
+pnpm run dev:docker:down  # Detener container
+```
+
+### **Configuración 1Password**
+```bash
+pnpm run setup:1password  # Script interactivo para configurar todas las variables
+```
 
 ## 🏗️ Arquitectura
 
-### 🎯 Entornos
+### **Stack Tecnológico**
+- **Backend:** NestJS + TypeScript
+- **Pagos:** Stripe API
+- **Base de Datos:** Notion API (como base de datos)
+- **WhatsApp:** Twilio API
+- **Contenedores:** Docker multi-stage
+- **Deploy:** Railway con autodeploys
+- **Secrets:** 1Password integration
 
-- **🔧 Develop**: Desarrollo local (`localhost:3000`)
-- **🧪 Test**: Deploy automático Railway (`test` branch)
-- **🏭 Production**: Deploy automático Railway (`main` branch)
-
-### 🔄 Flujo de trabajo
-
+### **Estructura Simplificada**
 ```
-develop (local) → test (deploy & test) → main (prod)
+📦 nestjs-stripe/
+├── 🐳 Dockerfile              # Multi-stage: dev, build, prod
+├── 🐳 docker-compose.yml      # Desarrollo con Docker
+├── ⚙️ railway.json            # Configuración Railway
+├── 🔐 scripts/
+│   ├── dev-docker.sh          # Wrapper desarrollo Docker
+│   ├── docker-entrypoint.sh   # Runtime 1Password integration
+│   ├── railway-1password-build.sh  # Build 1Password integration
+│   └── load-env-from-1password.sh  # Variables locales
+├── 📚 docs/                   # Documentación detallada
+├── 🔧 src/                    # Código fuente NestJS
+└── 📖 README-*.md             # Guías específicas
 ```
 
-**Proceso seguro:**
-1. **Desarrollo**: Trabajar en `develop`
-2. **Testing**: Merge a `test` → Deploy automático Railway TEST
-3. **Validación**: Probar en ambiente TEST
-4. **Producción**: Merge `test` → `main` → Deploy automático Railway PROD
+## 🔐 Gestión de Variables
 
-## 🛠️ Desarrollo Local
+**Todo se maneja con 1Password** - no más archivos `.env`:
 
-### 1. Clonar repositorio
+### **Desarrollo Local**
 ```bash
-git clone <repo-url>
-cd nestjs-stripe
-pnpm install
+# Cargar variables automáticamente
+pnpm run dev              # Con variables de 1Password
+# O manual:
+source scripts/load-env-from-1password.sh development
 ```
 
-### 2. Configurar 1Password
+### **Railway Production**
+- Variables se cargan automáticamente desde 1Password
+- Solo necesitas configurar `OP_SERVICE_ACCOUNT_TOKEN` en Railway Dashboard
+
+## 🚂 Deployment
+
+### **Railway Autodeploys**
 ```bash
-# Configurar variables de desarrollo automáticamente
-pnpm run setup:dev
-
-# O configurar variables de producción
-pnpm run setup:prod
+# Push automático detecta cambios
+git push origin test      # Deploy a ambiente TEST
+git push origin main      # Deploy a ambiente PRODUCTION
 ```
 
-### 3. Ejecutar localmente
-```bash
-# Desarrollo rápido (recomendado)
-pnpm run dev:local
+### **Variables de Railway**
+- `OP_SERVICE_ACCOUNT_TOKEN`: Tu Service Account de 1Password
+- Todas las demás variables se cargan automáticamente
 
-# O con Docker (desarrollo)
-pnpm run docker:dev
-```
+## 📖 Documentación
 
-### 4. Verificar funcionamiento
-```bash
-curl http://localhost:3000/health
-```
+- **[🔐 1Password Setup](README-1PASSWORD.md)** - Gestión de secrets
+- **[🚂 Railway Setup](RAILWAY-SETUP.md)** - Configuración de deploy
+- **[📚 Docs detallados](docs/)** - Arquitectura, Notion, etc.
 
-## 🔧 Scripts disponibles
+## 🎯 Features
 
-### Desarrollo
-```bash
-pnpm run dev:local        # Desarrollo local directo
-pnpm run setup:dev        # Setup 1Password dev
-pnpm run setup:prod       # Setup 1Password prod
-```
+### **Integración Stripe**
+- ✅ Procesamiento de pagos
+- ✅ Webhooks automáticos
+- ✅ Manejo de suscripciones
 
-### Docker multi-entorno
-```bash
-pnpm run docker:dev       # Puerto 3000 (desarrollo)
-pnpm run docker:test      # Puerto 3001 (testing)
-pnpm run docker:prod      # Puerto 3002 (producción)
-pnpm run docker:down      # Detener contenedores
-```
+### **Integración Notion**
+- ✅ Base de datos de clientes
+- ✅ Registro de pagos
+- ✅ Calendar de eventos
 
-### Railway (deployment)
-```bash
-pnpm run setup:railway    # Configurar Railway
-pnpm run railway:logs:test # Ver logs test
-pnpm run railway:logs:prod # Ver logs prod
-```
+### **Integración WhatsApp**
+- ✅ Notificaciones de pago
+- ✅ Confirmaciones automáticas
+- ✅ Soporte Twilio + Meta APIs
 
-## 📱 Endpoints WhatsApp
+### **DevOps**
+- ✅ Docker multi-stage optimizado
+- ✅ Railway autodeploys
+- ✅ 1Password secrets management
+- ✅ Ambiente dev = ambiente prod
 
-### Enviar mensaje
-```bash
-curl -X POST http://localhost:3000/whatsapp/send \
-  -H "Content-Type: application/json" \
-  -d '{
-    "to": "+56996419674",
-    "body": "¡Hola desde NestJS!"
-  }'
-```
+## 🚀 Próximos Pasos
 
-### Verificar estado
-```bash
-curl http://localhost:3000/whatsapp/status
-```
-
-## 💳 Testing Stripe
-
-### Webhook local (para testing)
-```bash
-# Con stripe CLI
-stripe listen --forward-to localhost:3000/webhook/stripe
-
-# Test webhook
-stripe trigger payment_intent.succeeded
-```
-
-## 📊 Health Checks
-
-### Local
-```bash
-curl http://localhost:3000/health
-```
-
-### Docker
-```bash
-curl http://localhost:3000/health   # dev
-curl http://localhost:3001/health   # test  
-curl http://localhost:3002/health   # prod
-```
-
-### Railway (deployment)
-```bash
-curl https://nestjs-stripe-notion-automation-test.up.railway.app/health   # test
-curl https://nestjs-stripe-notion-automation-prod.up.railway.app/health   # prod
-```
-
-## 🔒 Variables de Entorno
-
-### Estructura 1Password
-```
-📁 1password-dev.env     → Desarrollo local
-📁 1password-test.env    → Testing Railway 
-📁 1password-prod.env    → Production Railway
-```
-
-### Variables principales
-```bash
-STRIPE_SECRET_KEY=sk_test_... (dev/test) | sk_live_... (prod)
-STRIPE_WEBHOOK_SECRET=whsec_...
-NOTION_SECRET=ntn_...
-NOTION_CLIENTS_DATABASE_ID=...
-NOTION_PAYMENTS_DATABASE_ID=...
-TWILIO_ACCOUNT_SID=ACxxxxxxxxx
-TWILIO_AUTH_TOKEN=xxx
-TWILIO_WHATSAPP_FROM=+14155238886
-```
-
-## 🚂 Railway Deployment
-
-### 🚂 Railway Commands
-```bash
-# Setup automático completo (recomendado)
-pnpm run railway:auto
-
-# Upload manual de variables vía API
-pnpm run railway:upload  
-
-# Debug Railway API
-pnpm run railway:debug
-
-# Logs y estado
-pnpm run railway:logs:test
-pnpm run railway:logs:prod
-pnpm run railway:status
-```
-
-### CI/CD automático
-- **Push a `develop`** → Solo desarrollo local
-- **Push a `test`** → Deploy automático a Railway TEST  
-- **Merge `test` → `main`** → Deploy automático a Railway PROD
-
-**Flujo recomendado:**
-```bash
-# 1. Desarrollo
-git checkout develop
-git add . && git commit -m "feat: nueva feature"
-git push origin develop
-
-# 2. Testing  
-git checkout test
-git merge develop
-git push origin test  # → Deploy Railway TEST
-
-# 3. Validar en TEST
-curl https://nestjs-stripe-notion-automation-test.up.railway.app/health
-
-# 4. Producción (solo si TEST pasa)
-git checkout main  
-git merge test
-git push origin main  # → Deploy Railway PROD
-```
-
-### URLs Railway
-- **Test**: `https://nestjs-stripe-notion-automation-test.up.railway.app`
-- **Production**: `https://nestjs-stripe-notion-automation-prod.up.railway.app`
-
-Ver guía completa: [README-RAILWAY.md](./README-RAILWAY.md)
-
-## 🐛 Troubleshooting
-
-### Verificar Docker
-```bash
-docker ps
-docker-compose logs nestjs-dev
-```
-
-### Verificar 1Password
-```bash
-op account list
-op item list
-```
-
-### Verificar Railway
-```bash
-pnpm run railway:status
-pnpm run railway:logs:test
-```
-
-## 📝 Notas importantes
-
-1. **WhatsApp**: Solo funciona con números verificados en Twilio
-2. **Stripe**: Usa claves TEST en desarrollo, LIVE en producción
-3. **Notion**: Bases de datos separadas por entorno
-4. **Railway**: Deploy automático solo en `test` y `main`
-5. **Git Flow**: SIEMPRE merge a `main` desde `test` (nunca desde `develop`)
+1. **Setup 1Password**: [Guía](README-1PASSWORD.md)
+2. **Deploy Railway**: [Guía](RAILWAY-SETUP.md)
+3. **Desarrollo**: `pnpm run dev` o `pnpm run dev:docker`
 
 ---
 
-¡API lista para producción con Railway + CI/CD! 🎉
+**📧 Soporte:** Ver documentación en `/docs` o crear issue en GitHub

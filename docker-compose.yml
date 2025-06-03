@@ -1,109 +1,60 @@
-# 🐳 Docker Compose - NestJS Stripe Notion WhatsApp
-# version: '3.8'  # Removed obsolete version field
+# 🐳 Docker Compose - NestJS Development with 1Password
+# Ambiente idéntico a producción para detectar problemas temprano
 
 services:
   # ================================
-  # Desarrollo Local
+  # Desarrollo Local con 1Password
   # ================================
   nestjs-dev:
     build:
       context: .
       target: development
+      args:
+        - OP_SERVICE_ACCOUNT_TOKEN=${OP_SERVICE_ACCOUNT_TOKEN:-}
+        - RAILWAY_ENVIRONMENT=development
     container_name: nestjs-stripe-dev
+    restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "3000:3000"      # Aplicación
+      - "9229:9229"      # Debug port
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - OP_SERVICE_ACCOUNT_TOKEN=${OP_SERVICE_ACCOUNT_TOKEN:-}
+      - RAILWAY_ENVIRONMENT=development
     volumes:
+      # Hot reload: montar código fuente
       - .:/app
       - /app/node_modules
-    environment:
-      - NODE_ENV=dev
-      - PORT=3000
-      # Variables de Stripe
-      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
-      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
-      # Variables de Notion  
-      - NOTION_SECRET=${NOTION_SECRET}
-      - NOTION_CLIENTS_DATABASE_ID=${NOTION_CLIENTS_DATABASE_ID}
-      - NOTION_PAYMENTS_DATABASE_ID=${NOTION_PAYMENTS_DATABASE_ID}
-      - NOTION_CALENDAR_DATABASE_ID=${NOTION_CALENDAR_DATABASE_ID}
-      # Variables de WhatsApp
-      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
-      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
-      - TWILIO_WHATSAPP_FROM=${TWILIO_WHATSAPP_FROM}
-      - USE_META_WHATSAPP_API=${USE_META_WHATSAPP_API}
-    restart: unless-stopped
+      - ./logs:/app/logs
     networks:
       - nestjs-network
-
-  # ================================
-  # Test Environment 
-  # ================================
-  nestjs-test:
-    build:
-      context: .
-      target: development
-    container_name: nestjs-stripe-test
-    ports:
-      - "3001:3000"
-    volumes:
-      - .:/app
-      - /app/node_modules
-    environment:
-      - NODE_ENV=test
-      - PORT=3000
-      # Variables de Stripe
-      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
-      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
-      # Variables de Notion  
-      - NOTION_SECRET=${NOTION_SECRET}
-      - NOTION_CLIENTS_DATABASE_ID=${NOTION_CLIENTS_DATABASE_ID}
-      - NOTION_PAYMENTS_DATABASE_ID=${NOTION_PAYMENTS_DATABASE_ID}
-      - NOTION_CALENDAR_DATABASE_ID=${NOTION_CALENDAR_DATABASE_ID}
-      # Variables de WhatsApp
-      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
-      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
-      - TWILIO_WHATSAPP_FROM=${TWILIO_WHATSAPP_FROM}
-      - USE_META_WHATSAPP_API=${USE_META_WHATSAPP_API}
-    restart: unless-stopped
-    networks:
-      - nestjs-network
-
-  # ================================
-  # Production Environment
-  # ================================
-  nestjs-prod:
-    build:
-      context: .
-      target: production
-    container_name: nestjs-stripe-prod
-    ports:
-      - "3002:3000"
-    environment:
-      - NODE_ENV=production
-      - PORT=3000
-      # Variables de Stripe
-      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
-      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
-      # Variables de Notion  
-      - NOTION_SECRET=${NOTION_SECRET}
-      - NOTION_CLIENTS_DATABASE_ID=${NOTION_CLIENTS_DATABASE_ID}
-      - NOTION_PAYMENTS_DATABASE_ID=${NOTION_PAYMENTS_DATABASE_ID}
-      - NOTION_CALENDAR_DATABASE_ID=${NOTION_CALENDAR_DATABASE_ID}
-      # Variables de WhatsApp
-      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
-      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
-      - TWILIO_WHATSAPP_FROM=${TWILIO_WHATSAPP_FROM}
-      - USE_META_WHATSAPP_API=${USE_META_WHATSAPP_API}
-    restart: unless-stopped
-    networks:
-      - nestjs-network
+    stdin_open: true
+    tty: true
 
 networks:
   nestjs-network:
     driver: bridge
 
 # ================================
-# Volúmenes
+# 🚀 Comandos útiles:
 # ================================
-volumes:
-  node_modules: 
+# 
+# Desarrollo con hot reload:
+# docker-compose up
+#
+# Rebuild completo:
+# docker-compose up --build
+#
+# Solo build:
+# docker-compose build
+#
+# Logs en tiempo real:
+# docker-compose logs -f
+#
+# Ejecutar comandos:
+# docker-compose exec nestjs-dev pnpm run test
+# docker-compose exec nestjs-dev bash
+#
+# Limpiar todo:
+# docker-compose down --volumes --rmi all 
