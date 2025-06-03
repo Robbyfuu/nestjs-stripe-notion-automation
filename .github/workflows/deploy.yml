@@ -9,7 +9,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    container: ghcr.io/railwayapp/cli:latest
     
     steps:
       - name: 🛎️ Checkout code
@@ -35,6 +34,11 @@ jobs:
         env:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
           RAILWAY_TOKEN: "op://Programing/Railway Deploy/Token"
+
+      - name: 🚂 Install Railway CLI
+        run: |
+          curl -L https://railway.app/install.sh | sh
+          echo "$HOME/.railway/bin" >> $GITHUB_PATH
 
       - name: 🚀 Deploy to Railway (${{ steps.env.outputs.display_name }})
         run: railway up --service=${{ steps.env.outputs.service_id }}
