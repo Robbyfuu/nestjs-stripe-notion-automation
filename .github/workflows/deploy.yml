@@ -50,12 +50,11 @@ jobs:
         run: |
           echo "Reading Project ID from 1Password..."
           PROJECT_ID=$(op read "op://Programing/Railway Deploy/Project ID")
-          echo "Authenticating with Railway..."
-          railway login --token $RAILWAY_TOKEN
           echo "Connecting to Railway project..."
           railway link --project $PROJECT_ID
         env:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          RAILWAY_TOKEN: ${{ env.RAILWAY_TOKEN }}
 
       - name: 🚀 Deploy to Railway (${{ steps.env.outputs.display_name }})
         run: railway up --service=${{ steps.env.outputs.service_id }}
