@@ -43,7 +43,7 @@ jobs:
 
       - name: 🔗 Connect Railway to project
         run: |
-          echo "Connecting to Railway project: $RAILWAY_PROJECT_ID"
+          echo "Connecting to Railway project..."
           railway link $RAILWAY_PROJECT_ID
 
       - name: 🚀 Deploy to Railway (${{ steps.env.outputs.display_name }})
